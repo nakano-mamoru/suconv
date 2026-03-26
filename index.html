@@ -204,7 +204,7 @@
         options: [
           {
             id: 'urlSafe',
-            label: 'URL セーフ (+ → -, / → _)',
+            label: 'URL セーフ (+ → -, / → _, パディング = は保持)',
             type: 'checkbox',
             defaultValue: false,
           },
@@ -212,10 +212,7 @@
         convert(input, opts) {
           const encoder = new TextEncoder();
           const bytes = encoder.encode(input);
-          let binary = '';
-          for (let i = 0; i < bytes.length; i++) {
-            binary += String.fromCharCode(bytes[i]);
-          }
+          const binary = Array.from(bytes, b => String.fromCharCode(b)).join('');
           let base64 = btoa(binary);
           if (opts.urlSafe) {
             base64 = base64.replace(/\+/g, '-').replace(/\//g, '_');
@@ -296,7 +293,10 @@
       const opts = {};
       conv.options.forEach(opt => {
         const el = document.getElementById('opt-' + opt.id);
-        if (!el) return;
+        if (!el) {
+          console.warn('Option element not found: opt-' + opt.id);
+          return;
+        }
         if (opt.type === 'checkbox') {
           opts[opt.id] = el.checked;
         }
