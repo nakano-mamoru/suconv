@@ -1,5 +1,5 @@
-# Angular specific
-/dist/
+# Build output
+/target/
 /out-tsc/
 /tmp/
 /coverage/

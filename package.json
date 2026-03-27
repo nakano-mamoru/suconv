@@ -1,0 +1,14 @@
+{
+  "name": "suconv",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build/build.mjs",
+    "watch": "node build/build.mjs --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.3",
+    "typescript": "^5.8.2"
+  }
+}
