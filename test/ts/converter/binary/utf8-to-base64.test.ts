@@ -1,32 +1,32 @@
 import { describe, expect, it } from 'vitest';
-import { utf8ToBase64Converter } from '../../../src/ts/converter/utf8-to-base64';
-import type { BinFormatMode, OptionValue } from '../../../src/ts/converter/types';
+import { binaryConverter } from '../../../../src/ts/converter/binary/utf8-to-base64';
+import type { BinFormatMode, OptionValue } from '../../../../src/ts/converter/types';
 
 function opts(inputMode: BinFormatMode, outputMode: BinFormatMode): Record<string, OptionValue> {
   return { inputMode, outputMode };
 }
 
-describe('utf8ToBase64Converter', () => {
+describe('binaryConverter', () => {
   it('convert: UTF-8テキストをBase64文字列に変換する', async () => {
-    const result = await utf8ToBase64Converter.convert('hello', opts('utf8-text', 'base64-string'));
+    const result = await binaryConverter.convert('hello', opts('utf8-text', 'base64-string'));
 
     expect(result).toEqual({ success: true, output: 'aGVsbG8=' });
   });
 
   it('convert: HEX文字列をUTF-8テキストに変換する', async () => {
-    const result = await utf8ToBase64Converter.convert('e38182', opts('hex-string', 'utf8-text'));
+    const result = await binaryConverter.convert('e38182', opts('hex-string', 'utf8-text'));
 
     expect(result).toEqual({ success: true, output: 'あ' });
   });
 
   it('convert: Base64文字列をHEX文字列に変換する', async () => {
-    const result = await utf8ToBase64Converter.convert('YWJj', opts('base64-string', 'hex-string'));
+    const result = await binaryConverter.convert('YWJj', opts('base64-string', 'hex-string'));
 
     expect(result).toEqual({ success: true, output: '616263' });
   });
 
   it('convert: 10進数カンマ区切りを0xFF形式カンマ区切りに変換する', async () => {
-    const result = await utf8ToBase64Converter.convert(
+    const result = await binaryConverter.convert(
       '10,255,0',
       opts('decimal-comma', 'hex-prefixed-comma'),
     );
@@ -35,7 +35,7 @@ describe('utf8ToBase64Converter', () => {
   });
 
   it('convert: 0xFF形式カンマ区切りを10進数カンマ区切りに変換する', async () => {
-    const result = await utf8ToBase64Converter.convert(
+    const result = await binaryConverter.convert(
       '0x0A, 0xff,0x00',
       opts('hex-prefixed-comma', 'decimal-comma'),
     );
@@ -44,7 +44,7 @@ describe('utf8ToBase64Converter', () => {
   });
 
   it('convert: 奇数長のHEX文字列はエラーになる', async () => {
-    const result = await utf8ToBase64Converter.convert('abc', opts('hex-string', 'utf8-text'));
+    const result = await binaryConverter.convert('abc', opts('hex-string', 'utf8-text'));
 
     expect(result).toEqual({
       success: false,
@@ -53,7 +53,7 @@ describe('utf8ToBase64Converter', () => {
   });
 
   it('convert: 不正なBase64文字列はエラーになる', async () => {
-    const result = await utf8ToBase64Converter.convert('@@@', opts('base64-string', 'utf8-text'));
+    const result = await binaryConverter.convert('@@@', opts('base64-string', 'utf8-text'));
 
     expect(result).toEqual({
       success: false,
@@ -62,7 +62,7 @@ describe('utf8ToBase64Converter', () => {
   });
 
   it('convert: 範囲外の10進数値はエラーになる', async () => {
-    const result = await utf8ToBase64Converter.convert('256', opts('decimal-comma', 'hex-string'));
+    const result = await binaryConverter.convert('256', opts('decimal-comma', 'hex-string'));
 
     expect(result).toEqual({
       success: false,
@@ -71,7 +71,7 @@ describe('utf8ToBase64Converter', () => {
   });
 
   it('preProcess/postProcess: 未実装（undefined）である', () => {
-    expect(utf8ToBase64Converter.preProcess).toBeUndefined();
-    expect(utf8ToBase64Converter.postProcess).toBeUndefined();
+    expect(binaryConverter.preProcess).toBeUndefined();
+    expect(binaryConverter.postProcess).toBeUndefined();
   });
 });

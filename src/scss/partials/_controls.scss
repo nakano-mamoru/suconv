@@ -1,0 +1,176 @@
+.icon-button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-button-border);
+  border-radius: 6px;
+  background: var(--color-button-secondary-bg);
+  color: var(--color-button-secondary-text);
+  font-size: 1.05rem;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-button-secondary-hover);
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  button {
+    height: 2.5em;
+    margin: 0;
+  }
+}
+
+.mode-trigger-group {
+  display: inline-flex;
+  align-items: center;
+
+  .secondary-button {
+    border-radius: 0;
+  }
+
+  > .secondary-button:first-child {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    padding-right: 8px;
+  }
+
+  .mode-toggle-button {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding: 0;
+  }
+
+  .mode-select-wrapper {
+    margin-left: -1px;
+  }
+}
+
+.mode-select-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.mode-toggle-button {
+  min-width: 28px;
+  padding: 8px 6px;
+}
+
+.mode-select-popup {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 10;
+  width: 180px;
+  border: 1px solid var(--color-popup-border);
+  border-radius: 6px;
+  background: var(--color-popup-bg);
+  box-shadow: 0 6px 16px var(--color-popup-shadow);
+}
+
+.mode-menu {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mode-menu-button {
+  border: none;
+  border-bottom: 1px solid var(--color-menu-divider);
+  background: var(--color-menu-bg);
+  color: var(--color-menu-text);
+  text-align: left;
+  font-size: 0.9rem;
+  padding: 8px 10px;
+  cursor: pointer;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--color-menu-hover);
+  }
+
+  &.is-active {
+    background: var(--color-menu-active);
+    font-weight: 600;
+  }
+}
+
+.secondary-button {
+  padding: 2px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--color-button-secondary-bg);
+  color: var(--color-button-secondary-text);
+  border: 1px solid var(--color-button-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: var(--color-button-secondary-hover);
+    border-color: var(--color-button-border-hover);
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+button#convertBtn {
+  padding: 10px 40px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--color-button-primary-bg);
+  color: var(--color-button-primary-text);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  letter-spacing: 0.05em;
+
+  &:hover {
+    background: var(--color-button-primary-hover);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    background: var(--color-button-disabled-bg);
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.action-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-action-text);
+  cursor: pointer;
+  user-select: none;
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+}
+
+.error-msg {
+  color: var(--color-error);
+  font-size: 0.85rem;
+  margin-top: 6px;
+}

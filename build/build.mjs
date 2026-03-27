@@ -1,10 +1,11 @@
 import { build, context } from 'esbuild';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { compileAsync } from 'sass';
 
 const rootDir = process.cwd();
 const sourceHtmlPath = path.join(rootDir, 'src', 'html', 'index.html');
-const sourceCssDir = path.join(rootDir, 'src', 'css');
+const sourceScssDir = path.join(rootDir, 'src', 'scss');
 const generatedTsDir = path.join(rootDir, 'src', 'ts', 'generated');
 const generatedThemesPath = path.join(generatedTsDir, 'style-themes.ts');
 const targetDir = path.join(rootDir, 'target');
@@ -73,22 +74,32 @@ async function writeStyleThemesModule(themeDefinitions) {
   await fs.writeFile(generatedThemesPath, output, 'utf8');
 }
 
+async function compileScss(filePath) {
+  const result = await compileAsync(filePath, {
+    style: 'expanded',
+  });
+
+  return result.css;
+}
+
 async function bundleCssAssets() {
   const parts = [];
   const themeDefinitions = [];
 
-  const mainCss = await fs.readFile(path.join(sourceCssDir, 'main.css'), 'utf8');
+  const mainCss = await compileScss(path.join(sourceScssDir, 'main.scss'));
   parts.push(mainCss);
 
-  const themeDir = path.join(sourceCssDir, 'theme');
+  const themeDir = path.join(sourceScssDir, 'theme');
   const themeFiles = (await fs.readdir(themeDir))
-    .filter((f) => f.endsWith('.css'))
+    .filter((f) => f.endsWith('.scss'))
     .sort();
 
   for (const fileName of themeFiles) {
-    const css = await fs.readFile(path.join(themeDir, fileName), 'utf8');
-    const fallbackId = fileName.replace(/\.css$/i, '');
-    themeDefinitions.push(parseThemeMeta(css, fallbackId));
+    const sourcePath = path.join(themeDir, fileName);
+    const source = await fs.readFile(sourcePath, 'utf8');
+    const css = await compileScss(sourcePath);
+    const fallbackId = fileName.replace(/\.scss$/i, '');
+    themeDefinitions.push(parseThemeMeta(source, fallbackId));
     parts.push(css);
   }
 

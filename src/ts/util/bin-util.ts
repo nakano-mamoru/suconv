@@ -1,23 +1,9 @@
-import {
-  BIN_FORMAT_OPTIONS,
-  type BinFormatMode,
-  type Converter,
-  type ConverterResult,
-  type OptionValue,
-} from './types';
+import type { BinFormatMode, OptionValue } from '../converter/types';
 
-const INPUT_MODE_OPTION_ID = 'inputMode';
-const OUTPUT_MODE_OPTION_ID = 'outputMode';
-
-function success(output: string): ConverterResult {
-  return { success: true, output };
-}
-
-function failure(message: string): ConverterResult {
-  return { success: false, output: `エラー: ${message}` };
-}
-
-function resolveMode(value: OptionValue | undefined, fallback: BinFormatMode): BinFormatMode {
+export function resolveMode(
+  value: OptionValue | undefined,
+  fallback: BinFormatMode,
+): BinFormatMode {
   if (
     value === 'utf8-text' ||
     value === 'hex-string' ||
@@ -122,7 +108,7 @@ function bytesToHexPrefixedComma(bytes: Uint8Array): string {
   return Array.from(bytes, (byte) => `0x${byte.toString(16).padStart(2, '0')}`).join(',');
 }
 
-function decodeInput(input: string, mode: BinFormatMode): Uint8Array {
+export function decodeInput(input: string, mode: BinFormatMode): Uint8Array {
   switch (mode) {
     case 'utf8-text':
       return new TextEncoder().encode(input);
@@ -137,7 +123,7 @@ function decodeInput(input: string, mode: BinFormatMode): Uint8Array {
   }
 }
 
-function encodeOutput(bytes: Uint8Array, mode: BinFormatMode): string {
+export function encodeOutput(bytes: Uint8Array, mode: BinFormatMode): string {
   switch (mode) {
     case 'utf8-text':
       return new TextDecoder().decode(bytes);
@@ -151,38 +137,3 @@ function encodeOutput(bytes: Uint8Array, mode: BinFormatMode): string {
       return bytesToHexPrefixedComma(bytes);
   }
 }
-
-export const utf8ToBase64Converter: Converter = {
-  id: 'byte-format-converter',
-  name: 'バイト列表現変換',
-  description: 'UTF-8テキスト、HEX、Base64、10進数CSV、0xFF形式CSVの間で相互変換します。',
-  options: [
-    {
-      id: INPUT_MODE_OPTION_ID,
-      label: '入力モード',
-      type: 'select',
-      defaultValue: 'utf8-text',
-      items: BIN_FORMAT_OPTIONS,
-    },
-    {
-      id: OUTPUT_MODE_OPTION_ID,
-      label: '出力モード',
-      type: 'select',
-      defaultValue: 'base64-string',
-      items: BIN_FORMAT_OPTIONS,
-    },
-  ],
-  async convert(input, opts) {
-    try {
-      const inputMode = resolveMode(opts[INPUT_MODE_OPTION_ID], 'utf8-text');
-      const outputMode = resolveMode(opts[OUTPUT_MODE_OPTION_ID], 'base64-string');
-      const bytes = decodeInput(input, inputMode);
-      return success(encodeOutput(bytes, outputMode));
-    } catch (error) {
-      if (error instanceof Error) {
-        return failure(error.message);
-      }
-      return failure('変換に失敗しました。');
-    }
-  },
-};

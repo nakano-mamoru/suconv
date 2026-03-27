@@ -2,8 +2,8 @@ import { CONVERTERS } from './converter/converters';
 import type { Converter, OptionValue } from './converter/types';
 import { ConvertEngine } from './converter/convert-engine';
 import { styleThemes } from './generated/style-themes';
-import { preference } from './storage/preference';
-import { settings } from './storage/settings';
+import { preference } from './util/preference';
+import { settings } from './util/settings';
 
 type TransferMode = 'text' | 'binary-hex';
 type ThemeDefinition = {
@@ -587,7 +587,7 @@ async function runConvert(): Promise<void> {
   try {
     const result = await engine.run(inputText.value, opts, lineByLineCheck.checked);
     outputText.value = result.output;
-    if (result.lineErrors) {
+    if (lineByLineCheck.checked && !result.success) {
       errorMsg.textContent = '一部の行で変換に失敗しました';
     }
   } catch (e) {

@@ -1,5 +1,7 @@
 export type OptionValue = string | boolean;
 
+import type { ConverterResult } from './converter-result';
+
 export type CheckboxConverterOption = {
   id: string;
   label: string;
@@ -43,11 +45,6 @@ export const BIN_FORMAT_OPTIONS: SelectOptionItem[] = [
 ];
 
 export type ConverterOption = CheckboxConverterOption | TextConverterOption | SelectConverterOption;
-
-export type ConverterResult = {
-  success: boolean;
-  output: string;
-};
 
 export type ConverterDescription = string | (() => string);
 

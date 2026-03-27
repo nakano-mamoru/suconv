@@ -1,5 +1,5 @@
 import type { Converter } from './types';
-import { lineBreakByLengthConverter } from './line-break-by-length';
-import { utf8ToBase64Converter } from './utf8-to-base64';
+import { binaryConverter } from './binary/utf8-to-base64';
+import { lineBreakByLengthConverter } from './format/line-break-by-length';
 
-export const CONVERTERS: Converter[] = [utf8ToBase64Converter, lineBreakByLengthConverter];
+export const CONVERTERS: Converter[] = [binaryConverter, lineBreakByLengthConverter];

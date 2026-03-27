@@ -17,6 +17,7 @@ npm run build
 ```
 
 `src/ts/main.ts` を `target/app.${hash}.js` に出力し、
+`src/scss` を `target/app.css` にコンパイルし、
 `src/html/index.html` から `target/index.html` を生成します。
 
 3. 型チェック
@@ -32,3 +33,13 @@ npm run watch
 ```
 
 出力先は `target` ディレクトリです。
+
+## APIドキュメント生成
+
+`src/ts` 配下のJSDocコメントをもとに、APIドキュメントを生成します。
+
+```bash
+npm run doc:api
+```
+
+出力先は `doc/api` ディレクトリです。

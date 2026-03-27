@@ -1,4 +1,5 @@
-import type { Converter, OptionValue } from './types';
+import type { Converter, OptionValue } from '../types';
+import { ConverterResult } from '../converter-result';
 
 const CHARS_PER_LINE_OPTION_ID = 'charsPerLine';
 
@@ -31,22 +32,16 @@ export const lineBreakByLengthConverter: Converter = {
   async preProcess(input, opts) {
     const charsPerLine = parseCharsPerLine(opts);
     if (charsPerLine === null) {
-      return {
-        success: false,
-        output: 'エラー: 1行あたりの文字数には1以上の整数を入力してください。',
-      };
+      return ConverterResult.failure('エラー: 1行あたりの文字数には1以上の整数を入力してください。');
     }
 
     opts[CHARS_PER_LINE_OPTION_ID] = String(charsPerLine);
-    return { success: true, output: input };
+    return ConverterResult.success(input);
   },
   async convert(input, opts) {
     const charsPerLine = parseCharsPerLine(opts);
     if (charsPerLine === null) {
-      return {
-        success: false,
-        output: 'エラー: 1行あたりの文字数の解釈に失敗しました。',
-      };
+      return ConverterResult.failure('エラー: 1行あたりの文字数の解釈に失敗しました。');
     }
 
     const chars = Array.from(input);
@@ -55,6 +50,6 @@ export const lineBreakByLengthConverter: Converter = {
       lines.push(chars.slice(i, i + charsPerLine).join(''));
     }
 
-    return { success: true, output: lines.join('\n') };
+    return ConverterResult.success(lines.join('\n'));
   },
 };

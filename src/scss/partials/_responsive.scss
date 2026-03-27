@@ -1,0 +1,78 @@
+@media (max-width: 720px) {
+  body {
+    overflow: auto;
+  }
+
+  .top-header {
+    position: static;
+  }
+
+  .split-root {
+    position: static;
+    display: block;
+  }
+
+  .workspace {
+    display: block;
+    height: auto;
+  }
+
+  .pane {
+    min-width: 0;
+  }
+
+  .converter-pane {
+    position: static;
+    min-height: 0;
+    overflow: visible;
+    border-top: none;
+  }
+
+  .splitter {
+    display: none;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+
+    button {
+      height: 2.5em;
+      margin: 0;
+    }
+  }
+
+  .mode-select-wrapper,
+  .mode-toggle-button,
+  .secondary-button,
+  .mode-trigger-group {
+    width: 100%;
+  }
+
+  .mode-trigger-group {
+    .secondary-button {
+      width: auto;
+    }
+
+    > .secondary-button:first-child {
+      flex: 1;
+    }
+  }
+
+  .mode-select-popup {
+    left: 0;
+    right: auto;
+    width: 100%;
+  }
+
+  .pane-card,
+  .converter-pane > .card {
+    border-radius: 8px;
+    box-shadow: 0 1px 4px var(--color-card-shadow);
+  }
+}

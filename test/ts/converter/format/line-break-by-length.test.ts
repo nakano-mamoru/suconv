@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineBreakByLengthConverter } from '../../../src/ts/converter/line-break-by-length';
+import { lineBreakByLengthConverter } from '../../../../src/ts/converter/format/line-break-by-length';
 
 describe('lineBreakByLengthConverter', () => {
   it('preProcess: 正常な文字数を正規化して成功を返す', async () => {
