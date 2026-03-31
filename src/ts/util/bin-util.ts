@@ -1,27 +1,29 @@
-import type { BinFormatMode, OptionValue } from '../converter/types';
+export type BinFormatMode =
+  | 'utf8-text'
+  | 'hex-string'
+  | 'base64-string'
+  | 'decimal-comma'
+  | 'hex-prefixed-comma';
 
-export function resolveMode(
-  value: OptionValue | undefined,
-  fallback: BinFormatMode,
-): BinFormatMode {
-  if (
-    value === 'utf8-text' ||
-    value === 'hex-string' ||
-    value === 'base64-string' ||
-    value === 'decimal-comma' ||
-    value === 'hex-prefixed-comma'
-  ) {
-    return value;
-  }
-  return fallback;
+const BIN_FORMAT_OPTIONS: Array<{ value: BinFormatMode; label: string }> = [
+  { value: 'utf8-text', label: 'テキスト (UTF-8)' },
+  { value: 'hex-string', label: 'HEX文字列' },
+  { value: 'base64-string', label: 'Base64文字列' },
+  { value: 'decimal-comma', label: '10進数カンマ区切り' },
+  { value: 'hex-prefixed-comma', label: '0xFF形式カンマ区切り' },
+];
+
+export function getSelectHtml(id: string): string {
+  const defaultMode: BinFormatMode = id.includes('outputMode') ? 'base64-string' : 'utf8-text';
+  const optionsHtml = BIN_FORMAT_OPTIONS.map((item) => {
+    const selected = item.value === defaultMode ? ' selected' : '';
+    return `<option value="${item.value}"${selected}>${item.label}</option>`;
+  }).join('');
+  return `<select id="${id}">${optionsHtml}</select>`;
 }
 
 function normalizeHex(text: string): string {
   return text.replace(/\s+/g, '').trim();
-}
-
-function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 function hexToBytes(input: string): Uint8Array {
@@ -57,11 +59,6 @@ function base64ToBytes(input: string): Uint8Array {
   }
 }
 
-function bytesToBase64(bytes: Uint8Array): string {
-  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('');
-  return btoa(binary);
-}
-
 function decimalCommaToBytes(input: string): Uint8Array {
   const normalized = input.trim();
   if (normalized.length === 0) {
@@ -83,10 +80,6 @@ function decimalCommaToBytes(input: string): Uint8Array {
   );
 }
 
-function bytesToDecimalComma(bytes: Uint8Array): string {
-  return Array.from(bytes, (byte) => String(byte)).join(',');
-}
-
 function hexPrefixedCommaToBytes(input: string): Uint8Array {
   const normalized = input.trim();
   if (normalized.length === 0) {
@@ -104,26 +97,42 @@ function hexPrefixedCommaToBytes(input: string): Uint8Array {
   );
 }
 
+export function decodeInput(text: string, mode: string | undefined): Uint8Array {
+  switch (mode) {
+    case 'utf8-text':
+      return new TextEncoder().encode(text);
+    case 'hex-string':
+      return hexToBytes(text);
+    case 'base64-string':
+      return base64ToBytes(text);
+    case 'decimal-comma':
+      return decimalCommaToBytes(text);
+    case 'hex-prefixed-comma':
+      return hexPrefixedCommaToBytes(text);
+    default:
+      throw new Error('入力モードが不正です。');
+  }
+}
+
+function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('');
+  return btoa(binary);
+}
+
+function bytesToDecimalComma(bytes: Uint8Array): string {
+  return Array.from(bytes, (byte) => String(byte)).join(',');
+}
+
+
 function bytesToHexPrefixedComma(bytes: Uint8Array): string {
   return Array.from(bytes, (byte) => `0x${byte.toString(16).padStart(2, '0')}`).join(',');
 }
 
-export function decodeInput(input: string, mode: BinFormatMode): Uint8Array {
-  switch (mode) {
-    case 'utf8-text':
-      return new TextEncoder().encode(input);
-    case 'hex-string':
-      return hexToBytes(input);
-    case 'base64-string':
-      return base64ToBytes(input);
-    case 'decimal-comma':
-      return decimalCommaToBytes(input);
-    case 'hex-prefixed-comma':
-      return hexPrefixedCommaToBytes(input);
-  }
-}
-
-export function encodeOutput(bytes: Uint8Array, mode: BinFormatMode): string {
+export function encodeOutput(bytes: Uint8Array, mode: string | undefined): string {
   switch (mode) {
     case 'utf8-text':
       return new TextDecoder().decode(bytes);
@@ -135,5 +144,7 @@ export function encodeOutput(bytes: Uint8Array, mode: BinFormatMode): string {
       return bytesToDecimalComma(bytes);
     case 'hex-prefixed-comma':
       return bytesToHexPrefixedComma(bytes);
+    default:
+      throw new Error('出力モードが不正です。');
   }
 }

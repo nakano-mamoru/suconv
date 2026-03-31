@@ -1,13 +1,18 @@
 import { build, context } from 'esbuild';
 import { promises as fs } from 'node:fs';
+import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { compileAsync } from 'sass';
 
 const rootDir = process.cwd();
 const sourceHtmlPath = path.join(rootDir, 'src', 'html', 'index.html');
+const convertPageHtmlPath = path.join(rootDir, 'src', 'html', 'convert-page.html');
 const sourceScssDir = path.join(rootDir, 'src', 'scss');
 const generatedTsDir = path.join(rootDir, 'src', 'ts', 'generated');
 const generatedThemesPath = path.join(generatedTsDir, 'style-themes.ts');
+const generatedConvertPageHtmlPath = path.join(generatedTsDir, 'convert-page-html.ts');
+const generatedBuildInfoPath = path.join(generatedTsDir, 'build-info.ts');
+const modernNormalizeCssPath = path.join(rootDir, 'node_modules', 'modern-normalize', 'modern-normalize.css');
 const targetDir = path.join(rootDir, 'target');
 const watchMode = process.argv.includes('--watch');
 
@@ -74,6 +79,60 @@ async function writeStyleThemesModule(themeDefinitions) {
   await fs.writeFile(generatedThemesPath, output, 'utf8');
 }
 
+async function generateConvertPageHtmlModule() {
+  await fs.mkdir(generatedTsDir, { recursive: true });
+
+  const htmlContent = await fs.readFile(convertPageHtmlPath, 'utf8');
+  const escapedHtml = htmlContent
+    .replace(/\\/g, '\\\\')
+    .replace(/`/g, '\\`')
+    .replace(/\$/g, '\\$');
+
+  const output = [
+    'export const convertPageHtml = `' + escapedHtml + '`;',
+    '',
+  ].join('\n');
+
+  await fs.writeFile(generatedConvertPageHtmlPath, output, 'utf8');
+}
+
+async function generateBuildInfoModule() {
+  await fs.mkdir(generatedTsDir, { recursive: true });
+
+  const buildDate = new Date().toISOString();
+  let gitBranch = 'unknown';
+  let gitCommit = 'unknown';
+
+  try {
+    gitBranch = execSync('git rev-parse --abbrev-ref HEAD', {
+      cwd: rootDir,
+      encoding: 'utf8',
+    }).trim();
+  } catch {
+    // Git not available or not in a git repository
+  }
+
+  try {
+    gitCommit = execSync('git rev-parse HEAD', {
+      cwd: rootDir,
+      encoding: 'utf8',
+    }).trim();
+  } catch {
+    // Git not available or not in a git repository
+  }
+
+  const output = [
+    'export const buildInfo = {',
+    `  buildDate: ${JSON.stringify(buildDate)},`,
+    `  gitBranch: ${JSON.stringify(gitBranch)},`,
+    `  gitCommit: ${JSON.stringify(gitCommit)},`,
+    '} as const;',
+    '',
+  ].join('\n');
+
+  await fs.writeFile(generatedBuildInfoPath, output, 'utf8');
+}
+
 async function compileScss(filePath) {
   const result = await compileAsync(filePath, {
     style: 'expanded',
@@ -85,6 +144,9 @@ async function compileScss(filePath) {
 async function bundleCssAssets() {
   const parts = [];
   const themeDefinitions = [];
+
+  const modernNormalizeCss = await fs.readFile(modernNormalizeCssPath, 'utf8');
+  parts.push(modernNormalizeCss);
 
   const mainCss = await compileScss(path.join(sourceScssDir, 'main.scss'));
   parts.push(mainCss);
@@ -110,6 +172,8 @@ async function bundleCssAssets() {
 async function runBuild() {
   await prepareTargetDirectory();
   await bundleCssAssets();
+  await generateConvertPageHtmlModule();
+  await generateBuildInfoModule();
   const result = await build(buildOptions);
   await writeOutputHtml(result.metafile);
 }
@@ -117,6 +181,8 @@ async function runBuild() {
 async function runWatch() {
   await prepareTargetDirectory();
   await bundleCssAssets();
+  await generateConvertPageHtmlModule();
+  await generateBuildInfoModule();
 
   const ctx = await context({
     ...buildOptions,
@@ -126,6 +192,8 @@ async function runWatch() {
         setup(pluginBuild) {
           pluginBuild.onStart(async () => {
             await bundleCssAssets();
+            await generateConvertPageHtmlModule();
+            await generateBuildInfoModule();
           });
 
           pluginBuild.onEnd(async (result) => {

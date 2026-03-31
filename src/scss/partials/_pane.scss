@@ -31,6 +31,12 @@
     border-left: none;
     border-right: none;
     border-bottom: none;
+
+    &.no-wrap {
+      white-space: pre;
+      overflow-x: auto;
+      overflow-y: auto;
+    }
   }
 }
 
@@ -65,14 +71,18 @@
   }
 }
 
-.option-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
+.converter-options {
+  margin-top: 8px;
 
-  label {
+  > div {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+
+  > div > label {
     font-weight: 500;
     margin: 0;
     min-width: 120px;
@@ -83,5 +93,75 @@
     width: 16px;
     height: 16px;
     cursor: pointer;
+  }
+
+  [data-role='picker'] {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    flex: 1;
+    min-width: 0;
+  }
+
+  [data-role='picker'] input[type='text'] {
+    flex: 1;
+    min-width: 0;
+  }
+
+  [data-role='picker'] button[data-role='picker-toggle'] {
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--color-button-secondary-bg);
+    color: var(--color-button-secondary-text);
+    border: 1px solid var(--color-button-border);
+    min-width: 32px;
+    padding: 0 8px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: -1px;
+    cursor: pointer;
+  }
+
+  [data-role='picker'] button[data-role='picker-toggle']:hover {
+    background: var(--color-button-secondary-hover);
+    border-color: var(--color-button-border-hover);
+  }
+
+  [data-role='picker-popup'] {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 10;
+    width: 220px;
+    border: 1px solid var(--color-popup-border);
+    border-radius: 6px;
+    background: var(--color-popup-bg);
+    box-shadow: 0 6px 16px var(--color-popup-shadow);
+    overflow: hidden;
+  }
+
+  [data-role='picker-popup'] > div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  [data-role='picker-popup'] button[data-value] {
+    border: none;
+    border-bottom: 1px solid var(--color-menu-divider);
+    background: var(--color-menu-bg);
+    color: var(--color-menu-text);
+    text-align: left;
+    font-size: 0.9rem;
+    padding: 8px 10px;
+    cursor: pointer;
+  }
+
+  [data-role='picker-popup'] button[data-value]:last-child {
+    border-bottom: none;
+  }
+
+  [data-role='picker-popup'] button[data-value]:hover {
+    background: var(--color-menu-hover);
   }
 }

@@ -4,9 +4,10 @@ type PreferenceRecord = {
 };
 
 const DATABASE_NAME = 'suconv';
-const DATABASE_VERSION = 2;
+const DATABASE_VERSION = 3;
 const SETTINGS_STORE_NAME = 'Settings';
 const PREFERENCES_STORE_NAME = 'Preferences';
+const DEFAULT_PARAMS_STORE_NAME = 'DefaultParams';
 const THEME_ID_KEY = 'themeId';
 
 export class Preference {
@@ -84,6 +85,9 @@ export class Preference {
         }
         if (!db.objectStoreNames.contains(PREFERENCES_STORE_NAME)) {
           db.createObjectStore(PREFERENCES_STORE_NAME, { keyPath: 'key' });
+        }
+        if (!db.objectStoreNames.contains(DEFAULT_PARAMS_STORE_NAME)) {
+          db.createObjectStore(DEFAULT_PARAMS_STORE_NAME, { keyPath: 'key' });
         }
       });
 

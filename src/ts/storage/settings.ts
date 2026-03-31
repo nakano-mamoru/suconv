@@ -4,13 +4,21 @@ type SettingRecord = {
 };
 
 const DATABASE_NAME = 'suconv';
-const DATABASE_VERSION = 2;
+const DATABASE_VERSION = 3;
 const SETTINGS_STORE_NAME = 'Settings';
 const PREFERENCES_STORE_NAME = 'Preferences';
+const DEFAULT_PARAMS_STORE_NAME = 'DefaultParams';
 const INPUT_TEXT_KEY = 'inputText';
 const INPUT_PANE_RATIO_KEY = 'inputPaneRatio';
 const OUTPUT_PANE_RATIO_KEY = 'outputPaneRatio';
 const CONVERTER_PANE_HEIGHT_PX_KEY = 'converterPaneHeightPx';
+const LAST_CONVERTER_ID_KEY = 'lastConverterId';
+const AUTO_CONVERT_ENABLED_KEY = 'autoConvertEnabled';
+const LINE_BY_LINE_ENABLED_KEY = 'lineByLineEnabled';
+const LINE_WRAP_ENABLED_KEY = 'lineWrapEnabled';
+const MONOSPACE_FONT_ENABLED_KEY = 'monospaceFontEnabled';
+const INPUT_TRANSFER_MODE_KEY = 'inputTransferMode';
+const OUTPUT_TRANSFER_MODE_KEY = 'outputTransferMode';
 
 export class Settings {
   private dbPromise: Promise<IDBDatabase>;
@@ -71,6 +79,76 @@ export class Settings {
     void this.setValue(CONVERTER_PANE_HEIGHT_PX_KEY, nextValue);
   }
 
+  get lastConverterId(): string {
+    const value = this.cache.get(LAST_CONVERTER_ID_KEY);
+    return typeof value === 'string' ? value : '';
+  }
+
+  set lastConverterId(value: string) {
+    this.cache.set(LAST_CONVERTER_ID_KEY, value);
+    void this.setValue(LAST_CONVERTER_ID_KEY, value);
+  }
+
+  get autoConvertEnabled(): boolean {
+    const value = this.cache.get(AUTO_CONVERT_ENABLED_KEY);
+    return typeof value === 'boolean' ? value : false;
+  }
+
+  set autoConvertEnabled(value: boolean) {
+    this.cache.set(AUTO_CONVERT_ENABLED_KEY, value);
+    void this.setValue(AUTO_CONVERT_ENABLED_KEY, value);
+  }
+
+  get lineByLineEnabled(): boolean {
+    const value = this.cache.get(LINE_BY_LINE_ENABLED_KEY);
+    return typeof value === 'boolean' ? value : false;
+  }
+
+  set lineByLineEnabled(value: boolean) {
+    this.cache.set(LINE_BY_LINE_ENABLED_KEY, value);
+    void this.setValue(LINE_BY_LINE_ENABLED_KEY, value);
+  }
+
+  get lineWrapEnabled(): boolean {
+    const value = this.cache.get(LINE_WRAP_ENABLED_KEY);
+    return typeof value === 'boolean' ? value : true;
+  }
+
+  set lineWrapEnabled(value: boolean) {
+    this.cache.set(LINE_WRAP_ENABLED_KEY, value);
+    void this.setValue(LINE_WRAP_ENABLED_KEY, value);
+  }
+
+  get monospaceFontEnabled(): boolean {
+    const value = this.cache.get(MONOSPACE_FONT_ENABLED_KEY);
+    return typeof value === 'boolean' ? value : true;
+  }
+
+  set monospaceFontEnabled(value: boolean) {
+    this.cache.set(MONOSPACE_FONT_ENABLED_KEY, value);
+    void this.setValue(MONOSPACE_FONT_ENABLED_KEY, value);
+  }
+
+  get inputTransferMode(): 'text' | 'binary-hex' {
+    const value = this.cache.get(INPUT_TRANSFER_MODE_KEY);
+    return isTransferMode(value) ? value : 'text';
+  }
+
+  set inputTransferMode(value: 'text' | 'binary-hex') {
+    this.cache.set(INPUT_TRANSFER_MODE_KEY, value);
+    void this.setValue(INPUT_TRANSFER_MODE_KEY, value);
+  }
+
+  get outputTransferMode(): 'text' | 'binary-hex' {
+    const value = this.cache.get(OUTPUT_TRANSFER_MODE_KEY);
+    return isTransferMode(value) ? value : 'text';
+  }
+
+  set outputTransferMode(value: 'text' | 'binary-hex') {
+    this.cache.set(OUTPUT_TRANSFER_MODE_KEY, value);
+    void this.setValue(OUTPUT_TRANSFER_MODE_KEY, value);
+  }
+
   async initialize(): Promise<void> {
     if (this.initialized) {
       return;
@@ -94,6 +172,41 @@ export class Settings {
     const storedConverterPaneHeightPx = await this.getValue<number>(CONVERTER_PANE_HEIGHT_PX_KEY);
     if (isPositiveNumber(storedConverterPaneHeightPx)) {
       this.cache.set(CONVERTER_PANE_HEIGHT_PX_KEY, Math.max(300, storedConverterPaneHeightPx));
+    }
+
+    const storedLastConverterId = await this.getValue<string>(LAST_CONVERTER_ID_KEY);
+    if (typeof storedLastConverterId === 'string') {
+      this.cache.set(LAST_CONVERTER_ID_KEY, storedLastConverterId);
+    }
+
+    const storedAutoConvertEnabled = await this.getValue<boolean>(AUTO_CONVERT_ENABLED_KEY);
+    if (typeof storedAutoConvertEnabled === 'boolean') {
+      this.cache.set(AUTO_CONVERT_ENABLED_KEY, storedAutoConvertEnabled);
+    }
+
+    const storedLineByLineEnabled = await this.getValue<boolean>(LINE_BY_LINE_ENABLED_KEY);
+    if (typeof storedLineByLineEnabled === 'boolean') {
+      this.cache.set(LINE_BY_LINE_ENABLED_KEY, storedLineByLineEnabled);
+    }
+
+    const storedLineWrapEnabled = await this.getValue<boolean>(LINE_WRAP_ENABLED_KEY);
+    if (typeof storedLineWrapEnabled === 'boolean') {
+      this.cache.set(LINE_WRAP_ENABLED_KEY, storedLineWrapEnabled);
+    }
+
+    const storedMonospaceFontEnabled = await this.getValue<boolean>(MONOSPACE_FONT_ENABLED_KEY);
+    if (typeof storedMonospaceFontEnabled === 'boolean') {
+      this.cache.set(MONOSPACE_FONT_ENABLED_KEY, storedMonospaceFontEnabled);
+    }
+
+    const storedInputTransferMode = await this.getValue<string>(INPUT_TRANSFER_MODE_KEY);
+    if (isTransferMode(storedInputTransferMode)) {
+      this.cache.set(INPUT_TRANSFER_MODE_KEY, storedInputTransferMode);
+    }
+
+    const storedOutputTransferMode = await this.getValue<string>(OUTPUT_TRANSFER_MODE_KEY);
+    if (isTransferMode(storedOutputTransferMode)) {
+      this.cache.set(OUTPUT_TRANSFER_MODE_KEY, storedOutputTransferMode);
     }
 
     this.initialized = true;
@@ -145,6 +258,9 @@ export class Settings {
         if (!db.objectStoreNames.contains(PREFERENCES_STORE_NAME)) {
           db.createObjectStore(PREFERENCES_STORE_NAME, { keyPath: 'key' });
         }
+        if (!db.objectStoreNames.contains(DEFAULT_PARAMS_STORE_NAME)) {
+          db.createObjectStore(DEFAULT_PARAMS_STORE_NAME, { keyPath: 'key' });
+        }
       });
 
       request.addEventListener('success', () => resolve(request.result));
@@ -159,6 +275,10 @@ function isPaneRatio(value: unknown): value is number {
 
 function isPositiveNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value > 0;
+}
+
+function isTransferMode(value: unknown): value is 'text' | 'binary-hex' {
+  return value === 'text' || value === 'binary-hex';
 }
 
 export const settings = new Settings();

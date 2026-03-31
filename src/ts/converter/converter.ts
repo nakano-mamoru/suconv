@@ -1,0 +1,11 @@
+import type { ConverterResult } from './converter-result';
+import type { ConverterParams } from './converter-params';
+
+export type Converter = {
+  id: string;
+  name: string;
+  description: () => string;
+  preProcess?: (input: string, opts: ConverterParams) => Promise<ConverterResult>;
+  convert: (text: string, opts: ConverterParams) => Promise<ConverterResult>;
+  postProcess?: (output: string, opts: ConverterParams) => Promise<ConverterResult>;
+};

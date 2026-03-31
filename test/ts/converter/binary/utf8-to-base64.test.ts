@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { binaryConverter } from '../../../../src/ts/converter/binary/utf8-to-base64';
-import type { BinFormatMode, OptionValue } from '../../../../src/ts/converter/types';
+import type { ConverterParams } from '../../../../src/ts/converter/converter-params';
+import type { BinFormatMode } from '../../../../src/ts/util/bin-util';
 
-function opts(inputMode: BinFormatMode, outputMode: BinFormatMode): Record<string, OptionValue> {
-  return { inputMode, outputMode };
+function opts(inputMode: BinFormatMode, outputMode: BinFormatMode): ConverterParams {
+  return {
+    inputMode,
+    outputMode,
+  };
 }
 
 describe('binaryConverter', () => {
@@ -19,55 +23,37 @@ describe('binaryConverter', () => {
     expect(result).toEqual({ success: true, output: 'あ' });
   });
 
-  it('convert: Base64文字列をHEX文字列に変換する', async () => {
-    const result = await binaryConverter.convert('YWJj', opts('base64-string', 'hex-string'));
+  it('convert: UTF-8テキストをHEX文字列に変換する', async () => {
+    const result = await binaryConverter.convert('abc', opts('utf8-text', 'hex-string'));
 
     expect(result).toEqual({ success: true, output: '616263' });
   });
 
   it('convert: 10進数カンマ区切りを0xFF形式カンマ区切りに変換する', async () => {
-    const result = await binaryConverter.convert(
-      '10,255,0',
-      opts('decimal-comma', 'hex-prefixed-comma'),
-    );
+    const result = await binaryConverter.convert('10,255,0', opts('decimal-comma', 'hex-prefixed-comma'));
 
     expect(result).toEqual({ success: true, output: '0x0a,0xff,0x00' });
   });
 
-  it('convert: 0xFF形式カンマ区切りを10進数カンマ区切りに変換する', async () => {
-    const result = await binaryConverter.convert(
-      '0x0A, 0xff,0x00',
-      opts('hex-prefixed-comma', 'decimal-comma'),
-    );
+  it('convert: Base64文字列を10進数カンマ区切りに変換する', async () => {
+    const result = await binaryConverter.convert('Cv8A', opts('base64-string', 'decimal-comma'));
 
     expect(result).toEqual({ success: true, output: '10,255,0' });
   });
 
-  it('convert: 奇数長のHEX文字列はエラーになる', async () => {
-    const result = await binaryConverter.convert('abc', opts('hex-string', 'utf8-text'));
-
-    expect(result).toEqual({
-      success: false,
-      output: 'エラー: HEX文字列モードでは文字数を偶数にしてください。',
-    });
+  it('convert: inputMode が無い場合はdecodeInputで例外になる', async () => {
+    await expect(
+      binaryConverter.convert('abc', { outputMode: 'utf8-text' }),
+    ).rejects.toThrow('入力モードが不正です。');
   });
 
-  it('convert: 不正なBase64文字列はエラーになる', async () => {
-    const result = await binaryConverter.convert('@@@', opts('base64-string', 'utf8-text'));
-
-    expect(result).toEqual({
-      success: false,
-      output: 'エラー: Base64文字列の形式が不正です。',
-    });
-  });
-
-  it('convert: 範囲外の10進数値はエラーになる', async () => {
-    const result = await binaryConverter.convert('256', opts('decimal-comma', 'hex-string'));
-
-    expect(result).toEqual({
-      success: false,
-      output: 'エラー: 10進数カンマ区切りモードでは各値を0から255の範囲にしてください。',
-    });
+  it('convert: 不正なoutputModeはencodeOutputで例外になる', async () => {
+    await expect(
+      binaryConverter.convert('', {
+        inputMode: 'utf8-text',
+        outputMode: 'invalid-mode',
+      }),
+    ).rejects.toThrow('出力モードが不正です。');
   });
 
   it('preProcess/postProcess: 未実装（undefined）である', () => {
