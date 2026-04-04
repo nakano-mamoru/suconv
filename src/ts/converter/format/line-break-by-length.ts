@@ -78,7 +78,7 @@ function splitTextByMode(
 
 export const lineBreakByLengthConverter: Converter = {
   id: 'line-break-by-length',
-  name: '指定文字数で改行',
+  name: '文字列フォーマット',
   description: () => `
     <p>指定した文字数ごとに改行を入れます。</p>
     <div class="converter-options">
@@ -105,6 +105,9 @@ export const lineBreakByLengthConverter: Converter = {
         </select>
       </div>
       <div>
+        <label><input id="opt-stripTags" type="checkbox"> タグ除去（HTMLタグを除去します）</label>
+      </div>
+      <div>
         <label><input id="opt-trimWhitespace" type="checkbox"> 空白除去（行頭・行末の連続した空白文字、タブ文字を除去します）</label>
       </div>
       <div>
@@ -126,12 +129,12 @@ export const lineBreakByLengthConverter: Converter = {
     </div>
   `,
   async preProcess(text, opts) {
-    const { charsPerLine, trimWhitespace, removeLineBreaks } = opts;
+    const { charsPerLine, trimWhitespace, removeLineBreaks, stripTags } = opts;
     const parsedCharsPerLine = Number(String(charsPerLine).trim());
     if (!Number.isNaN(parsedCharsPerLine)) {
       opts.charsPerLine = String(parsedCharsPerLine);
     }
-    return ConverterResult.success(preprocessByCommonOptions(text, trimWhitespace === true, removeLineBreaks === true));
+    return ConverterResult.success(preprocessByCommonOptions(text, trimWhitespace === true, removeLineBreaks === true, stripTags === true));
   },
   async convert(text, opts) {
     const {

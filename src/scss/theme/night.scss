@@ -1,0 +1,45 @@
+/* theme-id: night */
+/* theme-name: Night */
+body.theme_night {
+  --color-body-bg: #080010;
+  --color-body-text: #7ec8e0;
+  --color-header-bg: #12001e;
+  --color-header-border: #440e66;
+  --color-header-shadow: rgba(0, 0, 0, 0.60);
+  --color-title: #a8deff;
+  --color-pane-border: #3a0858;
+  --color-splitter: #3a0858;
+  --color-splitter-hover: #581270;
+  --color-card-bg: #110020;
+  --color-card-shadow: rgba(0, 0, 0, 0.55);
+  --color-label: #6ab0cc;
+  --color-button-secondary-bg: #1c0038;
+  --color-button-secondary-text: #90ccee;
+  --color-button-border: #581880;
+  --color-button-secondary-hover: #260050;
+  --color-button-border-hover: #8830b8;
+  --color-popup-border: #561878;
+  --color-popup-bg: #180030;
+  --color-popup-shadow: rgba(0, 0, 0, 0.65);
+  --color-menu-divider: #440e66;
+  --color-menu-bg: #180030;
+  --color-menu-text: #90ccee;
+  --color-menu-hover: #220048;
+  --color-menu-active: #300060;
+  --color-input-border: #541880;
+  --color-input-bg: #0c0018;
+  --color-focus: #f0d020;
+  --color-focus-shadow: rgba(240, 208, 32, 0.25);
+  --color-description-bg: #160028;
+  --color-description-text: #80c8e8;
+  --color-option-label: #80c8e8;
+  --color-readonly-bg: #080012;
+  --color-logo: #f0d020;
+  --color-button-primary-bg: #e8c820;
+  --color-button-primary-text: #080010;
+  --color-button-primary-hover: #c8a810;
+  --color-button-disabled-bg: #3e1e60;
+  --color-action-text: #78a8cc;
+  --color-error: #ff6080;
+  --color-dialog-backdrop: rgba(0, 0, 0, 0.70);
+}

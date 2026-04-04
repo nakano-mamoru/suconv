@@ -1,0 +1,45 @@
+/* theme-id: classic */
+/* theme-name: Classic */
+body.theme_classic {
+  --color-body-bg: #008080;
+  --color-body-text: #000000;
+  --color-header-bg: #000080;
+  --color-header-border: #000000;
+  --color-header-shadow: rgba(0, 0, 0, 0.50);
+  --color-title: #ffffff;
+  --color-pane-border: #808080;
+  --color-splitter: #808080;
+  --color-splitter-hover: #606060;
+  --color-card-bg: #c0c0c0;
+  --color-card-shadow: rgba(0, 0, 0, 0.40);
+  --color-label: #000000;
+  --color-button-secondary-bg: #c0c0c0;
+  --color-button-secondary-text: #000000;
+  --color-button-border: #808080;
+  --color-button-secondary-hover: #d0d0d0;
+  --color-button-border-hover: #404040;
+  --color-popup-border: #808080;
+  --color-popup-bg: #c0c0c0;
+  --color-popup-shadow: rgba(0, 0, 0, 0.40);
+  --color-menu-divider: #808080;
+  --color-menu-bg: #c0c0c0;
+  --color-menu-text: #000000;
+  --color-menu-hover: #000080;
+  --color-menu-active: #000080;
+  --color-input-border: #808080;
+  --color-input-bg: #ffffff;
+  --color-focus: #000080;
+  --color-focus-shadow: rgba(0, 0, 128, 0.30);
+  --color-description-bg: #d0d0d0;
+  --color-description-text: #000000;
+  --color-option-label: #000000;
+  --color-readonly-bg: #c0c0c0;
+  --color-logo: #ffffff;
+  --color-button-primary-bg: #000080;
+  --color-button-primary-text: #ffffff;
+  --color-button-primary-hover: #0000aa;
+  --color-button-disabled-bg: #909090;
+  --color-action-text: #000000;
+  --color-error: #ff0000;
+  --color-dialog-backdrop: rgba(0, 0, 0, 0.50);
+}

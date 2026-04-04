@@ -372,10 +372,18 @@ export class ConvertPage {
     }
   }
 
+  private applyDisableMultiline(conv: Converter): void {
+    const disabled = conv.disableMultiline === true;
+    this.lineByLineCheck.disabled = disabled;
+    this.lineByLineCheck.closest('label')?.classList.toggle('is-disabled', disabled);
+  }
+
   private renderConverterUI(conv: Converter): void {
     this.converterDescription.innerHTML = conv.description();
+    this.applyDisableMultiline(conv);
+    conv.setupDescription?.(this.converterDescription);
 
-    const inputs = this.converterDescription.querySelectorAll<HTMLInputElement>('input[type="text"]');
+    const inputs = this.converterDescription.querySelectorAll<HTMLInputElement>('input[type="text"], input[type="number"]');
     inputs.forEach((input) => {
       input.addEventListener('input', () => {
         if (this.autoConvertCheck.checked) void this.runConvert(true);
@@ -438,9 +446,11 @@ export class ConvertPage {
     const opts = this.engine.getOptions(this.converterDescription);
 
     try {
-      const result = await this.engine.run(this.inputText.value, opts, this.lineByLineCheck.checked, saveDefaultParams);
+      const disableMultiline = this.engine.getConverter().disableMultiline === true;
+      const lineByLine = !disableMultiline && this.lineByLineCheck.checked;
+      const result = await this.engine.run(this.inputText.value, opts, lineByLine, saveDefaultParams);
       this.outputText.value = result.output;
-      if (this.lineByLineCheck.checked && !result.success) {
+      if (lineByLine && !result.success) {
         this.errorMsg.textContent = '一部の行で変換に失敗しました';
       }
     } catch (e) {
@@ -543,6 +553,7 @@ export class ConvertPage {
     // Render initial converter UI
     this.renderConverterUI(initialConverter);
     this.engine.applyDefaultParamsToDescription();
+    initialConverter.setupDescription?.(this.converterDescription);
     this.inputText.value = settings.inputText;
 
     this.autoConvertCheck.checked = settings.autoConvertEnabled;
@@ -566,6 +577,7 @@ export class ConvertPage {
         settings.lastConverterId = conv.id;
         this.renderConverterUI(conv);
         this.engine.applyDefaultParamsToDescription();
+        conv.setupDescription?.(this.converterDescription);
         if (this.autoConvertCheck.checked) {
           void this.runConvert(true);
           return;
@@ -710,6 +722,7 @@ export class ConvertPage {
         const currentConverter = this.engine.getConverter();
         this.renderConverterUI(currentConverter);
         this.engine.applyDefaultParamsToDescription();
+        currentConverter.setupDescription?.(this.converterDescription);
       })();
     });
 

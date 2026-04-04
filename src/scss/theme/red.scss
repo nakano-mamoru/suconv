@@ -1,0 +1,45 @@
+/* theme-id: red */
+/* theme-name: Red */
+body.theme_red {
+  --color-body-bg: #3a0808;
+  --color-body-text: #f5e8e8;
+  --color-header-bg: #440d0d;
+  --color-header-border: #7a2020;
+  --color-header-shadow: rgba(0, 0, 0, 0.4);
+  --color-title: #fff0f0;
+  --color-pane-border: #7a2020;
+  --color-splitter: #7a2020;
+  --color-splitter-hover: #9a3030;
+  --color-card-bg: #440d0d;
+  --color-card-shadow: rgba(0, 0, 0, 0.4);
+  --color-label: #e8c0c0;
+  --color-button-secondary-bg: #5c1515;
+  --color-button-secondary-text: #f5e0e0;
+  --color-button-border: #8a2828;
+  --color-button-secondary-hover: #6e1c1c;
+  --color-button-border-hover: #b04040;
+  --color-popup-border: #8a2828;
+  --color-popup-bg: #4d1212;
+  --color-popup-shadow: rgba(0, 0, 0, 0.5);
+  --color-menu-divider: #7a2020;
+  --color-menu-bg: #4d1212;
+  --color-menu-text: #f5e0e0;
+  --color-menu-hover: #601818;
+  --color-menu-active: #741e1e;
+  --color-input-border: #8a2828;
+  --color-input-bg: #2e0505;
+  --color-focus: #d4a200;
+  --color-focus-shadow: rgba(212, 162, 0, 0.3);
+  --color-description-bg: #4a1010;
+  --color-description-text: #eedada;
+  --color-option-label: #eedada;
+  --color-readonly-bg: #280505;
+  --color-logo: #c9a227;
+  --color-button-primary-bg: #c9a227;
+  --color-button-primary-text: #1a0000;
+  --color-button-primary-hover: #b08c1c;
+  --color-button-disabled-bg: #7a4040;
+  --color-action-text: #e8cccc;
+  --color-error: #ff9090;
+  --color-dialog-backdrop: rgba(0, 0, 0, 0.6);
+}

@@ -100,7 +100,6 @@
     display: flex;
     align-items: stretch;
     gap: 0;
-    flex: 1;
     min-width: 0;
   }
 
@@ -110,22 +109,24 @@
   }
 
   [data-role='picker'] button[data-role='picker-toggle'] {
-    font-size: 0.9rem;
-    font-weight: 600;
-    background: var(--color-button-secondary-bg);
-    color: var(--color-button-secondary-text);
-    border: 1px solid var(--color-button-border);
     min-width: 32px;
     padding: 0 8px;
+    border: 1px solid var(--color-button-border);
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    margin-left: -1px;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    background: var(--color-button-secondary-bg);
+    color: var(--color-button-secondary-text);
+    font-size: 0.9rem;
     cursor: pointer;
-  }
+    margin-left: -1px;
+    transition: background 0.2s, border-color 0.2s;
 
-  [data-role='picker'] button[data-role='picker-toggle']:hover {
-    background: var(--color-button-secondary-hover);
-    border-color: var(--color-button-border-hover);
+    &:hover {
+      background: var(--color-button-secondary-hover);
+      border-color: var(--color-button-border-hover);
+    }
   }
 
   [data-role='picker-popup'] {

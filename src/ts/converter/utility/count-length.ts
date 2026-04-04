@@ -21,6 +21,9 @@ export const countLengthConverter: Converter = {
         </select>
       </div>
       <div>
+        <label><input id="opt-stripTags" type="checkbox"> タグ除去（HTMLタグを除去します）</label>
+      </div>
+      <div>
         <label><input id="opt-trimWhitespace" type="checkbox"> 空白除去（行頭・行末の連続した空白文字、タブ文字を除去します）</label>
       </div>
       <div>
@@ -36,8 +39,8 @@ export const countLengthConverter: Converter = {
     </div>
   `,
   async preProcess(text, opts) {
-    const { trimWhitespace, removeLineBreaks } = opts;
-    return ConverterResult.success(preprocessByCommonOptions(text, trimWhitespace === true, removeLineBreaks === true));
+    const { trimWhitespace, removeLineBreaks, stripTags } = opts;
+    return ConverterResult.success(preprocessByCommonOptions(text, trimWhitespace === true, removeLineBreaks === true, stripTags === true));
   },
   async convert(text, opts) {
     const { splitMode, lineBreakChar } = opts;

@@ -12,6 +12,19 @@
   align-items: center;
   justify-content: space-between;
 
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .app-logo {
+    height: 32px;
+    width: auto;
+    display: block;
+    color: var(--color-logo);
+  }
+
   h1 {
     text-align: center;
     font-size: 1.6rem;

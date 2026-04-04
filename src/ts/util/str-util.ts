@@ -6,7 +6,11 @@ export const COUNT_MODE_MAP: Record<string, CountMode> = {
   'sjis-bytes': 'sjis-bytes',
 };
 
-export function preprocessByCommonOptions(text: string, trimWhitespace: boolean, removeLineBreaks: boolean): string {
+export function preprocessByCommonOptions(text: string, trimWhitespace: boolean, removeLineBreaks: boolean, stripTags = false): string {
+  if (stripTags) {
+    text = text.replace(/<[^>]*>/g, '');
+  }
+
   if (trimWhitespace) {
     text = text.split('\n').map((line) => line.replace(/^[ \t　]+|[ \t　]+$/g, '')).join('\n');
   }
