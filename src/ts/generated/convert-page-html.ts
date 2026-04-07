@@ -57,8 +57,11 @@ export const convertPageHtml = `<div id="splitRoot" class="split-root">
 
   <aside id="converterPane" class="converter-pane">
     <div class="card">
-    <label for="converterSelect">コンバータ</label>
-    <select id="converterSelect"></select>
+    <div class="converter-select-row">
+      <label for="converterSelect">コンバータ</label>
+      <select id="converterSelect"></select>
+      <button id="helpBtn" class="icon-button" type="button" aria-label="ヘルプ"><svg xmlns="http://www.w3.org/2000/svg" class="help-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path fill="currentColor" d="M11.25 14.5v-.46c0-.98.26-1.72 1.36-2.52.87-.62 1.14-1.02 1.14-1.68 0-.78-.58-1.28-1.5-1.28-.9 0-1.54.48-1.7 1.3l-1.5-.32C9.38 8.3 10.46 7.25 12.25 7.25c1.9 0 3.1 1.07 3.1 2.65 0 1.1-.5 1.84-1.7 2.66-.9.62-1.15 1.07-1.15 1.9v.04h-1.25zm-.1 2.5a.85.85 0 1 1 1.7 0 .85.85 0 0 1-1.7 0z"/></svg></button>
+    </div>
     <div class="description" id="converterDescription"></div>
     <div class="options-area" id="converterOptions"></div>
     <div class="actions">

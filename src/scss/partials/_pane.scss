@@ -71,6 +71,36 @@
   }
 }
 
+.converter-select-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+
+  label {
+    display: inline;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-label);
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  select {
+    width: auto;
+    max-width: 200px;
+    font-size: 0.9rem;
+  }
+
+  .help-icon {
+    height: 18px;
+    width: 18px;
+    display: block;
+    flex-shrink: 0;
+  }
+}
+
+
 .converter-options {
   margin-top: 8px;
 
@@ -86,7 +116,14 @@
     font-weight: 500;
     margin: 0;
     min-width: 120px;
+    white-space: nowrap;
     color: var(--color-option-label);
+  }
+
+  select {
+    width: auto;
+    max-width: 220px;
+    font-size: 0.9rem;
   }
 
   input[type='checkbox'] {

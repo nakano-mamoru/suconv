@@ -7,6 +7,16 @@
   color: var(--color-button-secondary-text);
   font-size: 1.05rem;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  .setting-icon {
+    height: 18px;
+    width: 18px;
+    display: block;
+    flex-shrink: 0;
+  }
 
   &:hover {
     background: var(--color-button-secondary-hover);

@@ -13,12 +13,15 @@ const DEFAULT_PARAMS_STORE_NAME = 'DefaultParams';
 const DEFAULT_PARAMS_KEY = 'defaultParams';
 
 export class DefaultParams {
-  private dbPromise: Promise<IDBDatabase>;
+  private dbPromise: Promise<IDBDatabase> | null = null;
   private cache: ConverterParams = {};
   private initialized = false;
 
-  constructor() {
-    this.dbPromise = this.openDatabase();
+  private getDb(): Promise<IDBDatabase> {
+    if (!this.dbPromise) {
+      this.dbPromise = this.openDatabase();
+    }
+    return this.dbPromise;
   }
 
   get value(): ConverterParams {
@@ -52,7 +55,7 @@ export class DefaultParams {
   }
 
   private async getValue<T>(key: string): Promise<T | undefined> {
-    const db = await this.dbPromise;
+    const db = await this.getDb();
     return await new Promise<T | undefined>((resolve, reject) => {
       const transaction = db.transaction(DEFAULT_PARAMS_STORE_NAME, 'readonly');
       const store = transaction.objectStore(DEFAULT_PARAMS_STORE_NAME);
@@ -67,7 +70,7 @@ export class DefaultParams {
   }
 
   private async setValue<T>(key: string, value: T): Promise<void> {
-    const db = await this.dbPromise;
+    const db = await this.getDb();
     await new Promise<void>((resolve, reject) => {
       const transaction = db.transaction(DEFAULT_PARAMS_STORE_NAME, 'readwrite');
       const store = transaction.objectStore(DEFAULT_PARAMS_STORE_NAME);

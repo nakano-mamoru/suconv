@@ -8,6 +8,8 @@ const rootDir = process.cwd();
 const sourceHtmlPath = path.join(rootDir, 'src', 'html', 'index.html');
 const convertPageHtmlPath = path.join(rootDir, 'src', 'html', 'convert-page.html');
 const appLogoSvgPath = path.join(rootDir, 'src', 'svg', 'app-logo.svg');
+const settingIconSvgPath = path.join(rootDir, 'src', 'svg', 'setting.svg');
+const helpIconSvgPath = path.join(rootDir, 'src', 'svg', 'help.svg');
 const sourceScssDir = path.join(rootDir, 'src', 'scss');
 const generatedTsDir = path.join(rootDir, 'src', 'ts', 'generated');
 const generatedThemesPath = path.join(generatedTsDir, 'style-themes.ts');
@@ -48,9 +50,11 @@ function resolveEntryJsName(metafile) {
 async function writeOutputHtml(metafile) {
   const entryJsName = resolveEntryJsName(metafile);
   const appLogoSvg = await fs.readFile(appLogoSvgPath, 'utf8');
+  const settingIconSvg = await fs.readFile(settingIconSvgPath, 'utf8');
   const templateHtml = await fs.readFile(sourceHtmlPath, 'utf8');
   const outputHtml = templateHtml
     .replace('<!-- __APP_LOGO__ -->', appLogoSvg.trim())
+    .replace('<!-- __SETTINGS_ICON__ -->', settingIconSvg.trim())
     .replace('__APP_JS__', entryJsName);
   const outputHtmlPath = path.join(targetDir, 'index.html');
   await fs.writeFile(outputHtmlPath, outputHtml, 'utf8');
@@ -86,7 +90,9 @@ async function writeStyleThemesModule(themeDefinitions) {
 async function generateConvertPageHtmlModule() {
   await fs.mkdir(generatedTsDir, { recursive: true });
 
-  const htmlContent = await fs.readFile(convertPageHtmlPath, 'utf8');
+  const helpIconSvg = await fs.readFile(helpIconSvgPath, 'utf8');
+  const htmlContent = (await fs.readFile(convertPageHtmlPath, 'utf8'))
+    .replace('<!-- __HELP_ICON__ -->', helpIconSvg.trim());
   const escapedHtml = htmlContent
     .replace(/\\/g, '\\\\')
     .replace(/`/g, '\\`')
