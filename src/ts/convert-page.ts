@@ -4,6 +4,7 @@ import { ConvertEngine } from './converter/convert-engine';
 import { styleThemes } from './generated/style-themes';
 import { convertPageHtml } from './generated/convert-page-html';
 import { buildInfo } from './generated/build-info';
+import { helpContent } from './generated/help-content';
 import { preference } from './storage/preference';
 import { settings } from './storage/settings';
 import { defaultParams } from './storage/default-params';
@@ -55,11 +56,16 @@ export class ConvertPage {
   private toInputBtn!: HTMLButtonElement;
   private copyOutputBtn!: HTMLButtonElement;
   private preferencesBtn!: HTMLButtonElement;
+  private appHelpBtn!: HTMLButtonElement;
   private preferenceDialogBackdrop!: HTMLDivElement;
   private preferenceThemeSelect!: HTMLSelectElement;
   private preferenceCancelBtn!: HTMLButtonElement;
   private preferenceClearDefaultsBtn!: HTMLButtonElement;
   private preferenceSaveBtn!: HTMLButtonElement;
+  private helpBtn!: HTMLButtonElement;
+  private helpDialogBackdrop!: HTMLDivElement;
+  private helpDialogBody!: HTMLDivElement;
+  private helpDialogCloseBtn!: HTMLButtonElement;
   private buildDateDisplay!: HTMLElement;
   private gitBranchDisplay!: HTMLElement;
   private gitCommitDisplay!: HTMLElement;
@@ -215,6 +221,17 @@ export class ConvertPage {
       currentInputRatio = this.setInputPaneRatio(this.resolveInputPaneRatio());
       currentConverterHeight = this.setConverterPaneHeightPx(settings.converterPaneHeightPx);
     });
+  }
+
+  private openHelpDialog(contentKey: string): void {
+    this.helpDialogBody.innerHTML = helpContent[contentKey] ?? '<p>ヘルプが見つかりません。</p>';
+    this.helpDialogBackdrop.classList.remove('visually-hidden');
+    this.helpDialogBackdrop.setAttribute('aria-hidden', 'false');
+  }
+
+  private closeHelpDialog(): void {
+    this.helpDialogBackdrop.classList.add('visually-hidden');
+    this.helpDialogBackdrop.setAttribute('aria-hidden', 'true');
   }
 
   private openPreferenceDialog(): void {
@@ -511,11 +528,16 @@ export class ConvertPage {
     this.toInputBtn = this.requireElement('toInputBtn');
     this.copyOutputBtn = this.requireElement('copyOutputBtn');
     this.preferencesBtn = this.requireElement('preferencesBtn');
+    this.appHelpBtn = this.requireElement('appHelpBtn');
     this.preferenceDialogBackdrop = this.requireElement('preferenceDialogBackdrop');
     this.preferenceThemeSelect = this.requireElement('preferenceThemeSelect');
     this.preferenceCancelBtn = this.requireElement('preferenceCancelBtn');
     this.preferenceClearDefaultsBtn = this.requireElement('preferenceClearDefaultsBtn');
     this.preferenceSaveBtn = this.requireElement('preferenceSaveBtn');
+    this.helpBtn = this.requireElement('helpBtn');
+    this.helpDialogBackdrop = this.requireElement('helpDialogBackdrop');
+    this.helpDialogBody = this.requireElement('helpDialogBody');
+    this.helpDialogCloseBtn = this.requireElement('helpDialogCloseBtn');
     this.buildDateDisplay = this.requireElement('buildDateDisplay');
     this.gitBranchDisplay = this.requireElement('gitBranchDisplay');
     this.gitCommitDisplay = this.requireElement('gitCommitDisplay');
@@ -736,6 +758,28 @@ export class ConvertPage {
     this.preferenceDialogBackdrop.addEventListener('click', (event) => {
       if (event.target === this.preferenceDialogBackdrop) {
         this.closePreferenceDialog();
+      }
+    });
+
+    // App-level help button (top header)
+    this.appHelpBtn.addEventListener('click', () => {
+      this.openHelpDialog('app');
+    });
+
+    // Converter help button
+    this.helpBtn.addEventListener('click', () => {
+      const convId = this.engine.getConverter().id;
+      const key = convId in helpContent ? convId : 'app';
+      this.openHelpDialog(key);
+    });
+
+    this.helpDialogCloseBtn.addEventListener('click', () => {
+      this.closeHelpDialog();
+    });
+
+    this.helpDialogBackdrop.addEventListener('click', (event) => {
+      if (event.target === this.helpDialogBackdrop) {
+        this.closeHelpDialog();
       }
     });
 

@@ -53,8 +53,8 @@
 }
 
 .description {
-  margin-top: 10px;
-  padding: 10px 14px;
+  margin-top: 2px 10px;
+  padding: 0px 14px;
   background: var(--color-description-bg);
   border-left: 4px solid var(--color-focus);
   border-radius: 4px;
@@ -88,7 +88,7 @@
 
   select {
     width: auto;
-    max-width: 200px;
+    // max-width: 200px;
     font-size: 0.9rem;
   }
 

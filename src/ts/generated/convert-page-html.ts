@@ -60,7 +60,7 @@ export const convertPageHtml = `<div id="splitRoot" class="split-root">
     <div class="converter-select-row">
       <label for="converterSelect">コンバータ</label>
       <select id="converterSelect"></select>
-      <button id="helpBtn" class="icon-button" type="button" aria-label="ヘルプ"><svg xmlns="http://www.w3.org/2000/svg" class="help-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path fill="currentColor" d="M11.25 14.5v-.46c0-.98.26-1.72 1.36-2.52.87-.62 1.14-1.02 1.14-1.68 0-.78-.58-1.28-1.5-1.28-.9 0-1.54.48-1.7 1.3l-1.5-.32C9.38 8.3 10.46 7.25 12.25 7.25c1.9 0 3.1 1.07 3.1 2.65 0 1.1-.5 1.84-1.7 2.66-.9.62-1.15 1.07-1.15 1.9v.04h-1.25zm-.1 2.5a.85.85 0 1 1 1.7 0 .85.85 0 0 1-1.7 0z"/></svg></button>
+      <button id="helpBtn" class="icon-button" type="button" aria-label="ヘルプ"><svg xmlns="http://www.w3.org/2000/svg" class="help-icon" viewBox="0 0 358.094 355.5" aria-hidden="true" focusable="false"><path fill="currentColor" d="M358.094,91.826c0,15.427-3.049,29.256-9.114,41.473c-6.083,12.231-14.688,22.863-25.803,31.898c-10.928,8.88-24.058,16.818-39.406,23.83c-15.35,7.011-45.229,13.403-60.725,19.164v53.279h-85.154v-78.282c9.299-2.333,19.639-5.529,31.031-9.588c11.393-4.047,23.394-9.047,33.965-14.976c11.182-6.083,20.313-13.171,27.429-21.291c7.115-8.106,10.675-17.695,10.675-28.778c0-15.44-6.456-26.666-19.332-33.689c-12.875-7.011-30.767-10.529-53.655-10.529c-17.179,0-35.136,3.56-54.755,8.802c-37.581,10.04-93.327,38.983-104.356,44.848H0V47.412C22.484,33.4,61.729,19.053,91.124,11.341C118.481,4.164,170.99,0,197.552,0c25.819,0,48.641,2.307,68.43,6.895c19.787,4.601,36.645,11.032,50.588,19.28c13.52,8.249,23.82,17.953,30.901,29.088C354.553,66.398,358.094,78.591,358.094,91.826z M227.472,355.5h-92.23v-61.861h92.23V355.5z"/></svg></button>
     </div>
     <div class="description" id="converterDescription"></div>
     <div class="options-area" id="converterOptions"></div>
@@ -85,6 +85,16 @@ export const convertPageHtml = `<div id="splitRoot" class="split-root">
     </div>
     </div>
   </aside>
+</div>
+
+<div id="helpDialogBackdrop" class="dialog-backdrop visually-hidden" aria-hidden="true">
+  <div class="dialog-panel dialog-panel--help" role="dialog" aria-modal="true" aria-labelledby="helpDialogTitle">
+    <div class="dialog-panel__header">
+      <h2 id="helpDialogTitle">ヘルプ</h2>
+      <button id="helpDialogCloseBtn" class="secondary-button" type="button">閉じる</button>
+    </div>
+    <div class="dialog-body help-dialog-body" id="helpDialogBody"></div>
+  </div>
 </div>
 
 <div id="preferenceDialogBackdrop" class="dialog-backdrop visually-hidden" aria-hidden="true">

@@ -1,6 +1,6 @@
 .icon-button {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border: 1px solid var(--color-button-border);
   border-radius: 6px;
   background: var(--color-button-secondary-bg);
@@ -134,13 +134,14 @@
 
 .actions {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   gap: 16px;
 }
 
 button#convertBtn {
-  padding: 10px 40px;
+  height: 28px;
+  padding: 0px 40px;
   font-size: 1rem;
   font-weight: 600;
   background: var(--color-button-primary-bg);

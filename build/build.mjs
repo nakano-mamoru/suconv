@@ -10,11 +10,13 @@ const convertPageHtmlPath = path.join(rootDir, 'src', 'html', 'convert-page.html
 const appLogoSvgPath = path.join(rootDir, 'src', 'svg', 'app-logo.svg');
 const settingIconSvgPath = path.join(rootDir, 'src', 'svg', 'setting.svg');
 const helpIconSvgPath = path.join(rootDir, 'src', 'svg', 'help.svg');
+const helpDocDir = path.join(rootDir, 'doc', 'help');
 const sourceScssDir = path.join(rootDir, 'src', 'scss');
 const generatedTsDir = path.join(rootDir, 'src', 'ts', 'generated');
 const generatedThemesPath = path.join(generatedTsDir, 'style-themes.ts');
 const generatedConvertPageHtmlPath = path.join(generatedTsDir, 'convert-page-html.ts');
 const generatedBuildInfoPath = path.join(generatedTsDir, 'build-info.ts');
+const generatedHelpContentPath = path.join(generatedTsDir, 'help-content.ts');
 const modernNormalizeCssPath = path.join(rootDir, 'node_modules', 'modern-normalize', 'modern-normalize.css');
 const targetDir = path.join(rootDir, 'target');
 const watchMode = process.argv.includes('--watch');
@@ -106,6 +108,109 @@ async function generateConvertPageHtmlModule() {
   await fs.writeFile(generatedConvertPageHtmlPath, output, 'utf8');
 }
 
+function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function inlineMd(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.+?)`/g, '<code>$1</code>');
+}
+
+function markdownToHtml(md) {
+  const lines = md.split(/\r?\n/);
+  const blocks = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    const headingMatch = line.match(/^(#{1,3})\s+(.*)/);
+    if (headingMatch) {
+      blocks.push(`<h${headingMatch[1].length}>${inlineMd(headingMatch[2])}</h${headingMatch[1].length}>`);
+      i++;
+      continue;
+    }
+
+    if (line.startsWith('```')) {
+      const codeLines = [];
+      i++;
+      while (i < lines.length && !lines[i].startsWith('```')) {
+        codeLines.push(escapeHtml(lines[i]));
+        i++;
+      }
+      i++;
+      blocks.push(`<pre><code>${codeLines.join('\n')}</code></pre>`);
+      continue;
+    }
+
+    if (/^[-*]\s+/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^[-*]\s+/.test(lines[i])) {
+        items.push(`<li>${inlineMd(lines[i].replace(/^[-*]\s+/, ''))}</li>`);
+        i++;
+      }
+      blocks.push(`<ul>${items.join('')}</ul>`);
+      continue;
+    }
+
+    if (line.trim() === '') {
+      i++;
+      continue;
+    }
+
+    const paraLines = [];
+    while (i < lines.length && lines[i].trim() !== '' && !/^(#{1,3}|```|[-*]\s+)/.test(lines[i])) {
+      paraLines.push(inlineMd(lines[i]));
+      i++;
+    }
+    if (paraLines.length > 0) {
+      blocks.push(`<p>${paraLines.join('<br>')}</p>`);
+    }
+  }
+
+  return blocks.join('\n');
+}
+
+async function generateHelpModule() {
+  await fs.mkdir(generatedTsDir, { recursive: true });
+
+  const entries = {};
+
+  const appMdPath = path.join(helpDocDir, 'help.md');
+  const appMd = await fs.readFile(appMdPath, 'utf8');
+  entries['app'] = markdownToHtml(appMd);
+
+  const converterDir = path.join(helpDocDir, 'converter');
+  let converterFiles = [];
+  try {
+    converterFiles = (await fs.readdir(converterDir)).filter((f) => f.endsWith('.md'));
+  } catch {
+    // converter dir may not exist yet
+  }
+  for (const fileName of converterFiles) {
+    const id = fileName.replace(/\.md$/i, '');
+    const md = await fs.readFile(path.join(converterDir, fileName), 'utf8');
+    entries[id] = markdownToHtml(md);
+  }
+
+  const lines = [
+    'export const helpContent: Record<string, string> = {',
+    ...Object.entries(entries).map(([key, html]) => {
+      const escaped = html.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
+      return `  ${JSON.stringify(key)}: \`${escaped}\`,`;
+    }),
+    '};',
+    '',
+  ];
+
+  await fs.writeFile(generatedHelpContentPath, lines.join('\n'), 'utf8');
+}
+
 async function generateBuildInfoModule() {
   await fs.mkdir(generatedTsDir, { recursive: true });
 
@@ -184,6 +289,7 @@ async function runBuild() {
   await bundleCssAssets();
   await generateConvertPageHtmlModule();
   await generateBuildInfoModule();
+  await generateHelpModule();
   const result = await build(buildOptions);
   await writeOutputHtml(result.metafile);
 }
@@ -193,6 +299,7 @@ async function runWatch() {
   await bundleCssAssets();
   await generateConvertPageHtmlModule();
   await generateBuildInfoModule();
+  await generateHelpModule();
 
   const ctx = await context({
     ...buildOptions,
@@ -204,6 +311,7 @@ async function runWatch() {
             await bundleCssAssets();
             await generateConvertPageHtmlModule();
             await generateBuildInfoModule();
+            await generateHelpModule();
           });
 
           pluginBuild.onEnd(async (result) => {
