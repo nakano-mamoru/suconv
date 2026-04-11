@@ -101,4 +101,10 @@ export const variableNameConverter: Converter = {
     });
     return ConverterResult.success(result);
   },
+  swapMode(container: HTMLElement): void {
+    const inputSel = container.querySelector<HTMLSelectElement>('#opt-inputMode');
+    const outputSel = container.querySelector<HTMLSelectElement>('#opt-outputMode');
+    if (!inputSel || !outputSel) return;
+    [inputSel.value, outputSel.value] = [outputSel.value, inputSel.value];
+  },
 };

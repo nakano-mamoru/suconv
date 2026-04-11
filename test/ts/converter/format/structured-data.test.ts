@@ -232,5 +232,17 @@ describe('structuredDataConverter', () => {
       expect(result.output).toContain('<name>Alice</name>');
       expect(result.output).not.toMatch(/name="Alice"/);
     });
+
+    it('XML（属性あり）→ XML（属性優先なし）で子要素として出力', async () => {
+      const XML_WITH_ATTRS = '<person name="Alice" age="30"/>';
+      const result = await convert(XML_WITH_ATTRS, {
+        inputFormat: 'xml', outputFormat: 'xml', indentMode: '2', xmlAttributeFirst: false,
+      });
+      expect(result.success).toBe(true);
+      expect(result.output).toContain('<name>Alice</name>');
+      expect(result.output).toContain('<age>30</age>');
+      expect(result.output).not.toMatch(/name="Alice"/);
+      expect(result.output).not.toMatch(/age="30"/);
+    });
   });
 });

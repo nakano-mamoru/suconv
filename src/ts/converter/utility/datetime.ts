@@ -243,6 +243,15 @@ export const datetimeConverter: Converter = {
     outputModeSelect.addEventListener('change', update, { signal: ctrl.signal });
     update();
   },
+  swapMode(container: HTMLElement): void {
+    const inputSel = container.querySelector<HTMLSelectElement>('#opt-inputMode');
+    const outputSel = container.querySelector<HTMLSelectElement>('#opt-outputMode');
+    const inputUtc = container.querySelector<HTMLInputElement>('#opt-inputUtc');
+    const outputUtc = container.querySelector<HTMLInputElement>('#opt-outputUtc');
+    if (!inputSel || !outputSel) return;
+    [inputSel.value, outputSel.value] = [outputSel.value, inputSel.value];
+    if (inputUtc && outputUtc) [inputUtc.checked, outputUtc.checked] = [outputUtc.checked, inputUtc.checked];
+  },
   async convert(text, opts) {
     const inputMode = (opts['inputMode'] ?? 'iso8601') as DateMode;
     const outputMode = (opts['outputMode'] ?? 'iso8601') as DateMode;

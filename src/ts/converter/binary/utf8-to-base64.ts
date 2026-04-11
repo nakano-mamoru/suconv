@@ -69,6 +69,12 @@ export const binaryConverter: Converter = {
       console.info( "setupDescription")
     update();
   },
+  swapMode(container: HTMLElement): void {
+    const inputSel = container.querySelector<HTMLSelectElement>('#opt-inputMode');
+    const outputSel = container.querySelector<HTMLSelectElement>('#opt-outputMode');
+    if (!inputSel || !outputSel) return;
+    [inputSel.value, outputSel.value] = [outputSel.value, inputSel.value];
+  },
   async convert(text, opts) {
     const inputBytes = decodeInput(text, opts.inputMode as string);
     return ConverterResult.success(encodeOutput(inputBytes, opts.outputMode as string, {

@@ -175,6 +175,28 @@ function convertToAttrFirst(value: unknown): unknown {
   return result;
 }
 
+// @_ プレフィックスの属性キーを子要素キーに変換する（属性優先オフのとき）
+function convertToChildFirst(value: unknown): unknown {
+  if (value === null || value === undefined || typeof value !== 'object') {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map(convertToChildFirst);
+  }
+  const result: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    const newKey = k.startsWith('@_') ? k.slice(2) : k;
+    if (Array.isArray(v)) {
+      result[newKey] = v.map(convertToChildFirst);
+    } else if (v !== null && typeof v === 'object') {
+      result[newKey] = convertToChildFirst(v);
+    } else {
+      result[newKey] = v;
+    }
+  }
+  return result;
+}
+
 function serializeOutput(data: unknown, format: DataFormat, indentMode: IndentMode, xmlAttrFirst = false): string {
   const normalized = normalize(data);
   const indentStr = INDENT_MAP[indentMode];
@@ -204,7 +226,7 @@ function serializeOutput(data: unknown, format: DataFormat, indentMode: IndentMo
       });
     }
     case 'xml': {
-      const xmlData = xmlAttrFirst ? convertToAttrFirst(normalized) : normalized;
+      const xmlData = xmlAttrFirst ? convertToAttrFirst(normalized) : convertToChildFirst(normalized);
       const indentBy = indentStr ?? '';
       const builder = new XMLBuilder({
         format: indentMode !== 'none',
@@ -301,6 +323,12 @@ export const structuredDataConverter: Converter = {
 
     outputFormatSelect.addEventListener('change', update, { signal: ctrl.signal });
     update();
+  },
+  swapMode(container: HTMLElement): void {
+    const inputSel = container.querySelector<HTMLSelectElement>('#opt-inputFormat');
+    const outputSel = container.querySelector<HTMLSelectElement>('#opt-outputFormat');
+    if (!inputSel || !outputSel) return;
+    [inputSel.value, outputSel.value] = [outputSel.value, inputSel.value];
   },
   async convert(text, opts) {
     const inputFormat = (opts.inputFormat as DataFormat) ?? 'json';

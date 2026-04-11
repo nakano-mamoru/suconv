@@ -32,7 +32,16 @@
         <div class="card-header">
           <label for="outputText">結果</label>
           <div class="header-actions">
-            <button id="toInputBtn" class="secondary-button" type="button">入力へ転送</button>
+            <div class="mode-trigger-group">
+              <button id="toInputBtn" class="secondary-button" type="button">入力へ転送</button>
+              <div class="mode-select-wrapper" id="toInputModeWrapper">
+                <button id="toInputModeToggleBtn" class="secondary-button mode-toggle-button" type="button" aria-label="転送モード選択">▼</button>
+                <div id="toInputModeMenu" class="mode-select-popup mode-menu visually-hidden" role="menu" aria-label="転送モード">
+                  <button type="button" class="mode-menu-button is-active" data-mode="copy">そのまま</button>
+                  <button type="button" class="mode-menu-button" data-mode="swap">モード入替</button>
+                </div>
+              </div>
+            </div>
             <button id="copyOutputBtn" class="secondary-button" type="button">コピー</button>
             <div class="mode-trigger-group">
               <button id="downloadBtn" class="secondary-button" type="button">ダウンロード</button>

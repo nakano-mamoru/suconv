@@ -19,6 +19,7 @@ const LINE_WRAP_ENABLED_KEY = 'lineWrapEnabled';
 const MONOSPACE_FONT_ENABLED_KEY = 'monospaceFontEnabled';
 const INPUT_TRANSFER_MODE_KEY = 'inputTransferMode';
 const OUTPUT_TRANSFER_MODE_KEY = 'outputTransferMode';
+const TO_INPUT_MODE_KEY = 'toInputMode';
 
 export class Settings {
   private dbPromise: Promise<IDBDatabase>;
@@ -149,6 +150,16 @@ export class Settings {
     void this.setValue(OUTPUT_TRANSFER_MODE_KEY, value);
   }
 
+  get toInputMode(): 'copy' | 'swap' {
+    const value = this.cache.get(TO_INPUT_MODE_KEY);
+    return isToInputMode(value) ? value : 'copy';
+  }
+
+  set toInputMode(value: 'copy' | 'swap') {
+    this.cache.set(TO_INPUT_MODE_KEY, value);
+    void this.setValue(TO_INPUT_MODE_KEY, value);
+  }
+
   async initialize(): Promise<void> {
     if (this.initialized) {
       return;
@@ -207,6 +218,11 @@ export class Settings {
     const storedOutputTransferMode = await this.getValue<string>(OUTPUT_TRANSFER_MODE_KEY);
     if (isTransferMode(storedOutputTransferMode)) {
       this.cache.set(OUTPUT_TRANSFER_MODE_KEY, storedOutputTransferMode);
+    }
+
+    const storedToInputMode = await this.getValue<string>(TO_INPUT_MODE_KEY);
+    if (isToInputMode(storedToInputMode)) {
+      this.cache.set(TO_INPUT_MODE_KEY, storedToInputMode);
     }
 
     this.initialized = true;
@@ -279,6 +295,10 @@ function isPositiveNumber(value: unknown): value is number {
 
 function isTransferMode(value: unknown): value is 'text' | 'binary-hex' {
   return value === 'text' || value === 'binary-hex';
+}
+
+function isToInputMode(value: unknown): value is 'copy' | 'swap' {
+  return value === 'copy' || value === 'swap';
 }
 
 export const settings = new Settings();

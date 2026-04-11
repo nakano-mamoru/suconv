@@ -154,6 +154,11 @@ export const escapeStringConverter: Converter = {
       </div>
     </div>
   `,
+  swapMode(container: HTMLElement): void {
+    const sel = container.querySelector<HTMLSelectElement>('#opt-escapeMode');
+    if (!sel) return;
+    sel.value = sel.value === 'escape' ? 'unescape' : 'escape';
+  },
   async convert(text, opts) {
     const { escapeMode, escapeType, useEntityReference, replaceSpaceToNbsp } = opts;
 

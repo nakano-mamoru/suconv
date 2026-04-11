@@ -127,6 +127,11 @@ export const widthConvertConverter: Converter = {
       </div>
     </div>
   `,
+  swapMode(container: HTMLElement): void {
+    const sel = container.querySelector<HTMLSelectElement>('#opt-mode');
+    if (!sel) return;
+    sel.value = sel.value === 'toFull' ? 'toHalf' : 'toFull';
+  },
   async convert(text, opts) {
     if (text === '') return ConverterResult.success('');
     const toFull = opts['mode'] !== 'toHalf';

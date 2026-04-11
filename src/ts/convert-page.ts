@@ -10,6 +10,7 @@ import { settings } from './storage/settings';
 import { defaultParams } from './storage/default-params';
 
 type TransferMode = 'text' | 'binary-hex';
+type ToInputMode = 'copy' | 'swap';
 type ThemeDefinition = {
   id: string;
   name: string;
@@ -19,6 +20,7 @@ export class ConvertPage {
   private engine: ConvertEngine;
   private inputTransferMode: TransferMode = 'text';
   private outputTransferMode: TransferMode = 'text';
+  private toInputMode: ToInputMode = 'copy';
   private themes: ThemeDefinition[] = [];
 
   private readonly MIN_PANE_WIDTH = 280;
@@ -54,6 +56,9 @@ export class ConvertPage {
   private clearInputBtn!: HTMLButtonElement;
   private copyInputBtn!: HTMLButtonElement;
   private toInputBtn!: HTMLButtonElement;
+  private toInputModeWrapper!: HTMLDivElement;
+  private toInputModeToggleBtn!: HTMLButtonElement;
+  private toInputModeMenu!: HTMLDivElement;
   private copyOutputBtn!: HTMLButtonElement;
   private preferencesBtn!: HTMLButtonElement;
   private appHelpBtn!: HTMLButtonElement;
@@ -94,6 +99,7 @@ export class ConvertPage {
     const isHidden = menu.classList.contains('visually-hidden');
     this.closeModeMenu(this.inputModeMenu);
     this.closeModeMenu(this.outputModeMenu);
+    this.closeModeMenu(this.toInputModeMenu);
     if (isHidden) {
       menu.classList.remove('visually-hidden');
     }
@@ -526,6 +532,9 @@ export class ConvertPage {
     this.clearInputBtn = this.requireElement('clearInputBtn');
     this.copyInputBtn = this.requireElement('copyInputBtn');
     this.toInputBtn = this.requireElement('toInputBtn');
+    this.toInputModeWrapper = this.requireElement('toInputModeWrapper');
+    this.toInputModeToggleBtn = this.requireElement('toInputModeToggleBtn');
+    this.toInputModeMenu = this.requireElement('toInputModeMenu');
     this.copyOutputBtn = this.requireElement('copyOutputBtn');
     this.preferencesBtn = this.requireElement('preferencesBtn');
     this.appHelpBtn = this.requireElement('appHelpBtn');
@@ -585,8 +594,12 @@ export class ConvertPage {
     this.monospaceFontCheck.checked = settings.monospaceFontEnabled;
     this.inputTransferMode = settings.inputTransferMode;
     this.outputTransferMode = settings.outputTransferMode;
+    this.toInputMode = settings.toInputMode;
     this.setModeMenuActive(this.inputModeMenu, this.inputTransferMode);
     this.setModeMenuActive(this.outputModeMenu, this.outputTransferMode);
+    this.toInputModeMenu.querySelectorAll<HTMLButtonElement>('.mode-menu-button[data-mode]').forEach(b =>
+      b.classList.toggle('is-active', b.dataset.mode === this.toInputMode)
+    );
 
     this.applyTextAreaWrapMode();
     this.applyTextAreaFontMode();
@@ -679,6 +692,9 @@ export class ConvertPage {
       if (!this.outputModeWrapper.contains(target)) {
         this.closeModeMenu(this.outputModeMenu);
       }
+      if (!this.toInputModeWrapper.contains(target)) {
+        this.closeModeMenu(this.toInputModeMenu);
+      }
     });
 
     // File loading
@@ -720,11 +736,36 @@ export class ConvertPage {
 
     // To input button
     this.toInputBtn.addEventListener('click', () => {
-      this.inputText.value = this.outputText.value;
-      settings.inputText = this.inputText.value;
+      const newInputText = this.outputText.value;
+      if (this.toInputMode === 'swap') {
+        const conv = this.engine.getConverter();
+        conv.swapMode?.(this.converterDescription);
+        conv.setupDescription?.(this.converterDescription);
+      }
+      this.inputText.value = newInputText;
+      settings.inputText = newInputText;
       if (this.autoConvertCheck.checked) {
         void this.runConvert(true);
       }
+    });
+
+    // To input mode menu toggle
+    this.toInputModeToggleBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      this.toggleModeMenu(this.toInputModeMenu);
+    });
+
+    // To input mode menu buttons
+    this.toInputModeMenu.querySelectorAll<HTMLButtonElement>('.mode-menu-button[data-mode]').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        this.toInputMode = button.dataset.mode === 'swap' ? 'swap' : 'copy';
+        settings.toInputMode = this.toInputMode;
+        this.toInputModeMenu.querySelectorAll<HTMLButtonElement>('.mode-menu-button[data-mode]').forEach(b =>
+          b.classList.toggle('is-active', b.dataset.mode === this.toInputMode)
+        );
+        this.closeModeMenu(this.toInputModeMenu);
+      });
     });
 
     // Preferences
@@ -786,6 +827,7 @@ export class ConvertPage {
     // Close mode menus initially
     this.closeModeMenu(this.inputModeMenu);
     this.closeModeMenu(this.outputModeMenu);
+    this.closeModeMenu(this.toInputModeMenu);
 
     if (this.autoConvertCheck.checked) {
       void this.runConvert(true);
