@@ -264,8 +264,8 @@ export const structuredDataConverter: Converter = {
         <select id="opt-outputFormat">
           <option value="json">JSON</option>
           <option value="javascript">JavaScript</option>
-          <option value="yaml">YAML</option>
-          <option value="toml" selected>TOML</option>
+          <option value="yaml" selected>YAML</option>
+          <option value="toml">TOML</option>
           <option value="xml">XML</option>
         </select>
       </div>
@@ -332,7 +332,7 @@ export const structuredDataConverter: Converter = {
   },
   async convert(text, opts) {
     const inputFormat = (opts.inputFormat as DataFormat) ?? 'json';
-    const outputFormat = (opts.outputFormat as DataFormat) ?? 'toml';
+    const outputFormat = (opts.outputFormat as DataFormat) ?? 'yaml';
     const indentMode = (opts.indentMode as IndentMode) ?? '2';
     const xmlAttrFirst = opts.xmlAttributeFirst === true;
 

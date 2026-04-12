@@ -140,9 +140,9 @@ export const escapeStringConverter: Converter = {
       <div>
         <label for="opt-escapeType">エスケイプ種別</label>
         <select id="opt-escapeType">
-          <option value="html" selected>HTML</option>
+          <option value="html">HTML</option>
           <option value="xml">XML</option>
-          <option value="url">URLEncode</option>
+          <option value="url" selected>URLEncode</option>
           <option value="literal">JSON/Java/C#リテラル文字列</option>
         </select>
       </div>
@@ -160,10 +160,13 @@ export const escapeStringConverter: Converter = {
     sel.value = sel.value === 'escape' ? 'unescape' : 'escape';
   },
   async convert(text, opts) {
-    const { escapeMode, escapeType, useEntityReference, replaceSpaceToNbsp } = opts;
+    const escapeMode = (opts.escapeMode as EscapeMode) ?? 'escape';
+    const escapeType = (opts.escapeType as EscapeType) ?? 'url';
+    const useEntityReference = opts.useEntityReference;
+    const replaceSpaceToNbsp = opts.replaceSpaceToNbsp;
 
-    if ((escapeMode as EscapeMode) === 'unescape') {
-      switch (escapeType as EscapeType) {
+    if (escapeMode === 'unescape') {
+      switch (escapeType) {
         case 'html':
           return ConverterResult.success(unescapeMarkup(text));
         case 'xml':
@@ -175,7 +178,7 @@ export const escapeStringConverter: Converter = {
       }
     }
 
-    switch (escapeType as EscapeType) {
+    switch (escapeType) {
       case 'html':
         return ConverterResult.success(escapeMarkup(text, useEntityReference === true, replaceSpaceToNbsp === true));
       case 'xml':

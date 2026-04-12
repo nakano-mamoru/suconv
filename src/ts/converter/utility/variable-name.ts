@@ -67,16 +67,6 @@ export const variableNameConverter: Converter = {
       <div>
         <label for="opt-inputMode">入力形式</label>
         <select id="opt-inputMode">
-          <option value="camel">camelCase</option>
-          <option value="pascal">PascalCase</option>
-          <option value="snake" selected>snake_case</option>
-          <option value="constant">CONSTANT_CASE</option>
-          <option value="kebab">kebab-case</option>
-        </select>
-      </div>
-      <div>
-        <label for="opt-outputMode">出力形式</label>
-        <select id="opt-outputMode">
           <option value="camel" selected>camelCase</option>
           <option value="pascal">PascalCase</option>
           <option value="snake">snake_case</option>
@@ -85,15 +75,25 @@ export const variableNameConverter: Converter = {
         </select>
       </div>
       <div>
-        <label><input id="opt-abbrevUppercase" type="checkbox"> 2文字の略語を大文字にする</label>
+        <label for="opt-outputMode">出力形式</label>
+        <select id="opt-outputMode">
+          <option value="camel">camelCase</option>
+          <option value="pascal">PascalCase</option>
+          <option value="snake" selected>snake_case</option>
+          <option value="constant">CONSTANT_CASE</option>
+          <option value="kebab">kebab-case</option>
+        </select>
+      </div>
+      <div>
+        <label><input id="opt-abbrevUppercase" type="checkbox" checked> 2文字の略語を大文字にする</label>
       </div>
     </div>
   `,
   async convert(text, opts) {
     if (text === '') return ConverterResult.success('');
-    const inputMode = (opts['inputMode'] ?? 'snake') as CaseStyle;
-    const outputMode = (opts['outputMode'] ?? 'camel') as CaseStyle;
-    const abbrevUppercase = opts['abbrevUppercase'] === true;
+    const inputMode = (opts['inputMode'] ?? 'camel') as CaseStyle;
+    const outputMode = (opts['outputMode'] ?? 'snake') as CaseStyle;
+    const abbrevUppercase = opts['abbrevUppercase'] !== false;
     const pattern = new RegExp(INPUT_PATTERNS[inputMode], 'g');
     const result = text.replace(pattern, (match) => {
       const words = tokenize(match, inputMode, abbrevUppercase);

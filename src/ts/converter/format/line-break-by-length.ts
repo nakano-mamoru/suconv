@@ -85,7 +85,7 @@ export const lineBreakByLengthConverter: Converter = {
       <div>
         <label for="opt-charsPerLine">1行あたりの文字数</label>
         <div data-role="picker">
-          <input id="opt-charsPerLine" type="text" value="80" />
+          <input id="opt-charsPerLine" type="text" value="72" />
           <button type="button" data-role="picker-toggle" aria-label="文字数候補を選択">▼</button>
           <div data-role="picker-popup" hidden>
             <div>
@@ -108,10 +108,10 @@ export const lineBreakByLengthConverter: Converter = {
         <label><input id="opt-stripTags" type="checkbox"> タグ除去（HTMLタグを除去します）</label>
       </div>
       <div>
-        <label><input id="opt-trimWhitespace" type="checkbox"> 空白除去（行頭・行末の連続した空白文字、タブ文字を除去します）</label>
+        <label><input id="opt-trimWhitespace" type="checkbox" checked> 空白除去（行頭・行末の連続した空白文字、タブ文字を除去します）</label>
       </div>
       <div>
-        <label><input id="opt-removeLineBreaks" type="checkbox"> 改行除去（すべての改行文字を削除します。「行単位」が優先されます）</label>
+        <label><input id="opt-removeLineBreaks" type="checkbox" checked> 改行除去（すべての改行文字を削除します。「行単位」が優先されます）</label>
       </div>
       <div>
         <label><input id="opt-kinsoku" type="checkbox"> 禁則処理</label>

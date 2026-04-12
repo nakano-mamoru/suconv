@@ -389,8 +389,8 @@ export const arrayTableConverter: Converter = {
       <div>
         <label for="opt-inputFormat">入力形式</label>
         <select id="opt-inputFormat">
-          <option value="csv" selected>CSV</option>
-          <option value="tsv">TSV</option>
+          <option value="csv">CSV</option>
+          <option value="tsv" selected>TSV</option>
           <option value="json2d">JSON配列（二次元配列）</option>
           <option value="jsonobj">JSON配列（連想配列）</option>
           <option value="java">Java配列</option>
@@ -413,16 +413,16 @@ export const arrayTableConverter: Converter = {
         <label><input id="opt-outputHeader" type="checkbox" checked> ヘッダ行有り</label>
       </div>
       <div>
-        <label><input id="opt-skipEmpty" type="checkbox"> 空行スキップ</label>
+        <label><input id="opt-skipEmpty" type="checkbox" checked> 空行スキップ</label>
       </div>
     </div>
   `,
   async convert(text, opts) {
-    const inputFormat  = (opts.inputFormat  as TableFormat) ?? 'csv';
+    const inputFormat  = (opts.inputFormat  as TableFormat) ?? 'tsv';
     const outputFormat = (opts.outputFormat as TableFormat) ?? 'markdown';
-    const inputHeader  = opts.inputHeader  === true;
-    const outputHeader = opts.outputHeader === true;
-    const skipEmpty    = opts.skipEmpty    === true;
+    const inputHeader  = opts.inputHeader  !== false;
+    const outputHeader = opts.outputHeader !== false;
+    const skipEmpty    = opts.skipEmpty    !== false;
 
     const table  = parseInput(text, inputFormat, inputHeader, skipEmpty);
     const output = serializeOutput(table, outputFormat, outputHeader);

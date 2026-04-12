@@ -76,11 +76,13 @@ export const binaryConverter: Converter = {
     [inputSel.value, outputSel.value] = [outputSel.value, inputSel.value];
   },
   async convert(text, opts) {
-    const inputBytes = decodeInput(text, opts.inputMode as string);
-    return ConverterResult.success(encodeOutput(inputBytes, opts.outputMode as string, {
+    const inputMode = (opts.inputMode as string) ?? 'utf8-text';
+    const outputMode = (opts.outputMode as string) ?? 'base64-string';
+    const inputBytes = decodeInput(text, inputMode);
+    return ConverterResult.success(encodeOutput(inputBytes, outputMode, {
       hexFormat: opts.hexFormat as string,
       hexUppercase: opts.hexUppercase === true,
-      base64LineBreak: opts.base64LineBreak as string,
+      base64LineBreak: (opts.base64LineBreak as string) ?? 'none',
       csvLineBreak: opts.csvLineBreak as string,
     }));
   },

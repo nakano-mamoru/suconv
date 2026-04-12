@@ -9,6 +9,7 @@ const SETTINGS_STORE_NAME = 'Settings';
 const PREFERENCES_STORE_NAME = 'Preferences';
 const DEFAULT_PARAMS_STORE_NAME = 'DefaultParams';
 const THEME_ID_KEY = 'themeId';
+const SPELL_CHECK_ENABLED_KEY = 'spellCheckEnabled';
 
 export class Preference {
   private dbPromise: Promise<IDBDatabase>;
@@ -29,6 +30,16 @@ export class Preference {
     void this.setValue(THEME_ID_KEY, value);
   }
 
+  get spellCheckEnabled(): boolean {
+    const value = this.cache.get(SPELL_CHECK_ENABLED_KEY);
+    return typeof value === 'boolean' ? value : false;
+  }
+
+  set spellCheckEnabled(value: boolean) {
+    this.cache.set(SPELL_CHECK_ENABLED_KEY, value);
+    void this.setValue(SPELL_CHECK_ENABLED_KEY, value);
+  }
+
   async initialize(): Promise<void> {
     if (this.initialized) {
       return;
@@ -37,6 +48,11 @@ export class Preference {
     const storedThemeId = await this.getValue<string>(THEME_ID_KEY);
     if (typeof storedThemeId === 'string' && storedThemeId.length > 0) {
       this.cache.set(THEME_ID_KEY, storedThemeId);
+    }
+
+    const storedSpellCheckEnabled = await this.getValue<boolean>(SPELL_CHECK_ENABLED_KEY);
+    if (typeof storedSpellCheckEnabled === 'boolean') {
+      this.cache.set(SPELL_CHECK_ENABLED_KEY, storedSpellCheckEnabled);
     }
 
     this.initialized = true;

@@ -119,6 +119,9 @@
     white-space: nowrap;
     color: var(--color-option-label);
   }
+  > div.side-by-side > label {
+    min-width: 0;
+  }
 
   select {
     width: auto;

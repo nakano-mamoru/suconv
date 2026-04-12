@@ -64,6 +64,7 @@ export class ConvertPage {
   private appHelpBtn!: HTMLButtonElement;
   private preferenceDialogBackdrop!: HTMLDivElement;
   private preferenceThemeSelect!: HTMLSelectElement;
+  private preferenceSpellCheckCheck!: HTMLInputElement;
   private preferenceCancelBtn!: HTMLButtonElement;
   private preferenceClearDefaultsBtn!: HTMLButtonElement;
   private preferenceSaveBtn!: HTMLButtonElement;
@@ -466,6 +467,13 @@ export class ConvertPage {
     this.errorMsg.textContent = '';
     this.outputText.value = '';
 
+    const hasUnselected = Array.from(this.converterDescription.querySelectorAll<HTMLSelectElement>('select'))
+      .some((select) => select.selectedIndex < 0 || select.value === '');
+    if (hasUnselected) {
+      this.outputText.value = '未選択の項目があります';
+      return;
+    }
+
     const opts = this.engine.getOptions(this.converterDescription);
 
     try {
@@ -500,6 +508,12 @@ export class ConvertPage {
 
     [this.inputText, this.outputText].forEach((textArea) => {
       textArea.classList.toggle('use-monospace-font', useMonospace);
+    });
+  }
+
+  private applySpellCheck(enabled: boolean): void {
+    [this.inputText, this.outputText].forEach((textArea) => {
+      textArea.spellcheck = enabled;
     });
   }
 
@@ -540,6 +554,7 @@ export class ConvertPage {
     this.appHelpBtn = this.requireElement('appHelpBtn');
     this.preferenceDialogBackdrop = this.requireElement('preferenceDialogBackdrop');
     this.preferenceThemeSelect = this.requireElement('preferenceThemeSelect');
+    this.preferenceSpellCheckCheck = this.requireElement('preferenceSpellCheckCheck');
     this.preferenceCancelBtn = this.requireElement('preferenceCancelBtn');
     this.preferenceClearDefaultsBtn = this.requireElement('preferenceClearDefaultsBtn');
     this.preferenceSaveBtn = this.requireElement('preferenceSaveBtn');
@@ -564,6 +579,7 @@ export class ConvertPage {
     this.renderPreferenceThemeOptions(this.themes);
     const appliedThemeId = this.applyTheme(preference.themeId, this.themes);
     preference.themeId = appliedThemeId;
+    this.applySpellCheck(preference.spellCheckEnabled);
 
     // Setup splitters
     this.setupSplitters();
@@ -588,7 +604,6 @@ export class ConvertPage {
     this.inputText.value = settings.inputText;
 
     this.autoConvertCheck.checked = settings.autoConvertEnabled;
-    this.convertBtn.disabled = this.autoConvertCheck.checked;
     this.lineByLineCheck.checked = settings.lineByLineEnabled;
     this.lineWrapCheck.checked = settings.lineWrapEnabled;
     this.monospaceFontCheck.checked = settings.monospaceFontEnabled;
@@ -634,7 +649,6 @@ export class ConvertPage {
     // Auto convert checkbox
     this.autoConvertCheck.addEventListener('change', () => {
       settings.autoConvertEnabled = this.autoConvertCheck.checked;
-      this.convertBtn.disabled = this.autoConvertCheck.checked;
       if (this.autoConvertCheck.checked) {
         void this.runConvert(true);
       }
@@ -771,6 +785,7 @@ export class ConvertPage {
     // Preferences
     this.preferencesBtn.addEventListener('click', () => {
       this.preferenceThemeSelect.value = preference.themeId;
+      this.preferenceSpellCheckCheck.checked = preference.spellCheckEnabled;
       this.displayBuildInfo();
       this.openPreferenceDialog();
     });
@@ -793,6 +808,8 @@ export class ConvertPage {
       const selectedThemeId = this.preferenceThemeSelect.value;
       const appliedId = this.applyTheme(selectedThemeId, this.themes);
       preference.themeId = appliedId;
+      preference.spellCheckEnabled = this.preferenceSpellCheckCheck.checked;
+      this.applySpellCheck(preference.spellCheckEnabled);
       this.closePreferenceDialog();
     });
 

@@ -24,10 +24,10 @@ export const countLengthConverter: Converter = {
         <label><input id="opt-stripTags" type="checkbox"> タグ除去（HTMLタグを除去します）</label>
       </div>
       <div>
-        <label><input id="opt-trimWhitespace" type="checkbox"> 空白除去（行頭・行末の連続した空白文字、タブ文字を除去します）</label>
+        <label><input id="opt-trimWhitespace" type="checkbox" checked> 空白除去（行頭・行末の連続した空白文字、タブ文字を除去します）</label>
       </div>
       <div>
-        <label><input id="opt-removeLineBreaks" type="checkbox"> 改行除去（すべての改行文字を削除します。「行単位」が優先されます）</label>
+        <label><input id="opt-removeLineBreaks" type="checkbox" checked> 改行除去（すべての改行文字を削除します。「行単位」が優先されます）</label>
       </div>
       <div>
         <label for="opt-lineBreakChar">改行文字</label>

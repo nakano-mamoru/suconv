@@ -114,8 +114,8 @@ export const widthConvertConverter: Converter = {
       <div>
         <label for="opt-mode">変換方向</label>
         <select id="opt-mode">
-          <option value="toFull" selected>半角を全角に</option>
-          <option value="toHalf">全角を半角に</option>
+          <option value="toFull">半角を全角に</option>
+          <option value="toHalf" selected>全角を半角に</option>
         </select>
       </div>
       <div>
@@ -123,7 +123,7 @@ export const widthConvertConverter: Converter = {
         <label><input id="opt-digit" type="checkbox" checked> 数字</label>
         <label><input id="opt-alpha" type="checkbox" checked> アルファベット</label>
         <label><input id="opt-symbol" type="checkbox" checked> ASCII記号</label>
-        <label><input id="opt-kana" type="checkbox" checked> カタカナ</label>
+        <label><input id="opt-kana" type="checkbox"> カタカナ</label>
       </div>
     </div>
   `,
@@ -134,7 +134,7 @@ export const widthConvertConverter: Converter = {
   },
   async convert(text, opts) {
     if (text === '') return ConverterResult.success('');
-    const toFull = opts['mode'] !== 'toHalf';
+    const toFull = (opts['mode'] ?? 'toHalf') !== 'toHalf';
     const space = opts['space'] === true;
     const digit = opts['digit'] === true;
     const alpha = opts['alpha'] === true;

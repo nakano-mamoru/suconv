@@ -204,6 +204,9 @@ const MODE_OPTIONS = `
   <option value="dotnet">C#/.NET Ticks</option>
 `;
 
+const INPUT_MODE_OPTIONS = MODE_OPTIONS.replace('value="yyyymmdd"', 'value="yyyymmdd" selected');
+const OUTPUT_MODE_OPTIONS = MODE_OPTIONS.replace('value="epochms"', 'value="epochms" selected');
+
 export const datetimeConverter: Converter = {
   id: 'datetime-converter',
   name: '日付時刻変換',
@@ -212,13 +215,13 @@ export const datetimeConverter: Converter = {
     <div class="converter-options">
       <div>
         <label for="opt-inputMode">入力モード</label>
-        <select id="opt-inputMode">${MODE_OPTIONS}</select>
+        <select id="opt-inputMode">${INPUT_MODE_OPTIONS}</select>
         <label><input id="opt-inputUtc" type="checkbox"> UTC</label>
       </div>
       <div>
         <label for="opt-outputMode">出力モード</label>
-        <select id="opt-outputMode">${MODE_OPTIONS}</select>
-        <label><input id="opt-outputUtc" type="checkbox"> UTC</label>
+        <select id="opt-outputMode">${OUTPUT_MODE_OPTIONS}</select>
+        <label><input id="opt-outputUtc" type="checkbox" checked> UTC</label>
       </div>
       <div id="grp-showMs">
         <label><input id="opt-showMs" type="checkbox" checked> ミリ秒</label>
@@ -230,16 +233,32 @@ export const datetimeConverter: Converter = {
     const ctrl = new AbortController();
     setupAbortControllers.set(container, ctrl);
 
+    const inputModeSelect = container.querySelector<HTMLSelectElement>('#opt-inputMode');
     const outputModeSelect = container.querySelector<HTMLSelectElement>('#opt-outputMode');
-    if (!outputModeSelect) return;
+    const inputUtcCheck = container.querySelector<HTMLInputElement>('#opt-inputUtc');
+    const outputUtcCheck = container.querySelector<HTMLInputElement>('#opt-outputUtc');
+    if (!inputModeSelect || !outputModeSelect) return;
 
     const update = (): void => {
       const grpShowMs = container.querySelector<HTMLElement>('#grp-showMs');
       if (grpShowMs) {
         grpShowMs.hidden = outputModeSelect.value !== 'iso8601' && outputModeSelect.value !== 'yyyymmdd';
       }
+
+      const inputModeForcesUtc = inputModeSelect.value === 'epochms' || inputModeSelect.value === 'unixtime';
+      if (inputUtcCheck) {
+        inputUtcCheck.checked = inputModeForcesUtc ? true : inputUtcCheck.checked;
+        inputUtcCheck.disabled = inputModeForcesUtc;
+      }
+
+      const outputModeForcesUtc = outputModeSelect.value === 'epochms' || outputModeSelect.value === 'unixtime';
+      if (outputUtcCheck) {
+        outputUtcCheck.checked = outputModeForcesUtc ? true : outputUtcCheck.checked;
+        outputUtcCheck.disabled = outputModeForcesUtc;
+      }
     };
 
+    inputModeSelect.addEventListener('change', update, { signal: ctrl.signal });
     outputModeSelect.addEventListener('change', update, { signal: ctrl.signal });
     update();
   },
@@ -253,10 +272,10 @@ export const datetimeConverter: Converter = {
     if (inputUtc && outputUtc) [inputUtc.checked, outputUtc.checked] = [outputUtc.checked, inputUtc.checked];
   },
   async convert(text, opts) {
-    const inputMode = (opts['inputMode'] ?? 'iso8601') as DateMode;
-    const outputMode = (opts['outputMode'] ?? 'iso8601') as DateMode;
+    const inputMode = (opts['inputMode'] ?? 'yyyymmdd') as DateMode;
+    const outputMode = (opts['outputMode'] ?? 'epochms') as DateMode;
     const inputUtc = opts['inputUtc'] === true;
-    const outputUtc = opts['outputUtc'] === true;
+    const outputUtc = opts['outputUtc'] !== false;
     const showMs = opts['showMs'] !== false;
     if (text.trim() === '') return ConverterResult.success('');
     const ms = parseToMs(text, inputMode, inputUtc);
