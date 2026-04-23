@@ -13,6 +13,16 @@ export const helpContent: Record<string, string> = {
 <h2>環境設定</h2>
 <p>画面右上の歯車ボタンから環境設定を開けます。</p>
 <ul><li><strong>テーマ</strong> — 画面の配色テーマを変更します。</li><li><strong>初期値クリア</strong> — 各コンバータのデフォルトオプション値をリセットします。</li></ul>`,
+  "array-table": `<h1>二次元配列変換</h1>
+<p>CSV・TSV・JSON 配列・Java 配列・HTML Table・Markdown テーブルの相互変換を行います。</p>
+<h2>入力形式</h2>
+<ul><li>CSV</li><li>TSV</li><li>JSON配列（二次元配列）</li><li>JSON配列（連想配列）</li><li>Java配列</li><li>HTML Table</li><li>Markdownテーブル</li></ul>
+<h2>出力形式</h2>
+<ul><li>CSV</li><li>TSV</li><li>JSON配列（二次元配列）</li><li>JSON配列（連想配列）</li><li>Java配列</li><li>HTML Table</li><li>Markdownテーブル</li></ul>
+<h2>オプション</h2>
+<ul><li>ヘッダ行有り: 入力側では先頭行を見出しとして扱い、出力側では見出し行を含めます。</li><li>空行スキップ: 空行を読み飛ばして変換します。</li></ul>
+<h2>補足</h2>
+<ul><li>JSON配列（連想配列）は、ヘッダ行をキー名として扱います。</li><li>Markdown テーブル出力では、出力ヘッダ行有りが有効な場合に区切り行も生成します。</li></ul>`,
   "byte-format-converter": `<h1>バイナリ/テキスト変換</h1>
 <p>テキストとバイナリデータ（Base64・HEX）を相互に変換します。</p>
 <h2>変換モード</h2>
@@ -81,6 +91,24 @@ JavaScript エスケープ → He said \\"Hello\\\\nWorld\\"</code></pre>`,
 出力:
 ABCDEFGHIJ
 KLMNOPQRST</code></pre>`,
+  "prettier-format": `<h1>Prettier整形</h1>
+<p>Prettier および SQL 整形ライブラリを使用して、入力テキストを整形します。</p>
+<h2>入力形式</h2>
+<ul><li>HTML</li><li>XML</li><li>JSON</li><li>Javascript</li><li>SQL</li><li>YAML</li><li>TOML</li></ul>
+<h2>オプション</h2>
+<ul><li>区切り文字を列名の前に配置: SQL 整形時のみ表示されます。<code>SELECT</code> の列挙などでカンマを行頭に配置します。</li></ul>
+<h2>補足</h2>
+<ul><li>HTML / XML / JSON / Javascript / YAML は Prettier で整形します。</li><li>SQL は <code>sql-formatter</code> で整形します。</li><li>TOML は <code>@ltd/j-toml</code> を利用して整形します。</li></ul>`,
+  "structured-data": `<h1>構造化データ変換</h1>
+<p>XML・JSON・JavaScript・YAML・TOML の相互変換を行います。</p>
+<h2>入力形式</h2>
+<ul><li>JSON</li><li>JavaScript オブジェクトリテラル</li><li>YAML</li><li>TOML</li><li>XML</li></ul>
+<h2>出力形式</h2>
+<ul><li>JSON</li><li>JavaScript オブジェクトリテラル</li><li>YAML</li><li>TOML</li><li>XML</li></ul>
+<h2>オプション</h2>
+<ul><li>インデント: JSON / JavaScript / YAML / XML の出力時に使用するインデントを選択します。</li><li>属性優先: XML 出力時にスカラー値を属性として出力します。</li></ul>
+<h2>注意</h2>
+<ul><li>TOML 出力ではインデント設定は使用されません。</li><li>YAML 出力では <code>なし</code> と <code>Tab</code> は使用できません。</li><li>XML 入力時の属性は、設定に応じて属性または子要素として出力されます。</li></ul>`,
   "variable-name": `<h1>変数名変換</h1>
 <p>変数名の命名規則（ケーススタイル）を変換します。</p>
 <h2>対応形式</h2>
