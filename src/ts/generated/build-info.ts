@@ -1,5 +1,5 @@
 export const buildInfo = {
-  buildDate: "2026-04-12T13:19:56.784Z",
+  buildDate: "2026-04-25T13:53:55.877Z",
   gitBranch: "develop",
-  gitCommit: "246f4b8b1511e15ed02f609be2ddcfdad5786593",
+  gitCommit: "a87b4774f3bd4755947ab1b0e8a428d5a82e8fa5",
 } as const;

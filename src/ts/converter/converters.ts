@@ -1,5 +1,6 @@
 import type { Converter } from './converter';
 import { binaryConverter } from './binary/utf8-to-base64';
+import { hashConverter } from './binary/hash';
 import { lineBreakByLengthConverter } from './format/line-break-by-length';
 import { escapeStringConverter } from './format/escape-string';
 import { prettierFormatConverter } from './format/prettier-format';
@@ -13,6 +14,7 @@ import { variableNameConverter } from './utility/variable-name';
 
 export const CONVERTERS: Converter[] = [
 	binaryConverter,
+	hashConverter,
 	lineBreakByLengthConverter,
 	escapeStringConverter,
 	prettierFormatConverter,

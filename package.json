@@ -25,6 +25,7 @@
     "@ltd/j-toml": "^1.38.0",
     "@prettier/plugin-xml": "^3.4.2",
     "fast-xml-parser": "^5.5.11",
+    "hash-wasm": "^4.12.0",
     "js-yaml": "^4.1.1",
     "prettier": "^3.8.2",
     "sql-formatter": "^12.2.4"
