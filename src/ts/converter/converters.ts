@@ -9,8 +9,9 @@ import { arrayTableConverter } from './format/array-table';
 import { countLengthConverter } from './utility/count-length';
 import { generateStringConverter } from './utility/generate-string';
 import { datetimeConverter } from './utility/datetime';
-import { widthConvertConverter } from './utility/width-convert';
+import { widthConverter } from './utility/width-convert';
 import { variableNameConverter } from './utility/variable-name';
+import { cryptoConverter } from './crypto';
 
 export const CONVERTERS: Converter[] = [
 	binaryConverter,
@@ -23,6 +24,7 @@ export const CONVERTERS: Converter[] = [
 	countLengthConverter,
 	generateStringConverter,
 	datetimeConverter,
-	widthConvertConverter,
+	widthConverter,
 	variableNameConverter,
+	cryptoConverter,
 ];

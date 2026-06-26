@@ -110,11 +110,20 @@
   <div class="dialog-panel" role="dialog" aria-modal="true" aria-labelledby="preferenceDialogTitle">
     <h2 id="preferenceDialogTitle">Preference</h2>
     <div class="dialog-body">
-      <label for="preferenceThemeSelect">テーマ</label>
+      <p><strong><label for="preferenceThemeSelect">テーマ</label></strong></p>
       <select id="preferenceThemeSelect"></select>
 
       <div style="margin-top: 0.75em;">
         <label><input type="checkbox" id="preferenceSpellCheckCheck"> スペルチェックを有効にする</label>
+      </div>
+      
+      <hr style="margin: 1em 0;">
+      
+      <div style="margin-bottom: 1em;">
+        <p><strong>ロック情報管理</strong></p>
+        <button id="secretsRegisterBtn" class="secondary-button" type="button" style="margin-right: 0.5em;">ロックキー登録</button>
+        <button id="secretsChangeBtn" class="secondary-button" type="button">ロックキー変更</button>
+        <button id="secretsAuthBtn" class="secondary-button" type="button" style="margin-right: 0.5em;">認証</button>
       </div>
       
       <hr style="margin: 1em 0;">
@@ -130,6 +139,31 @@
       <button id="preferenceCancelBtn" class="secondary-button" type="button">キャンセル</button>
       <button id="preferenceClearDefaultsBtn" class="secondary-button" type="button">初期値クリア</button>
       <button id="preferenceSaveBtn" class="secondary-button" type="button">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="passwordDialogBackdrop" class="dialog-backdrop visually-hidden" aria-hidden="true">
+  <div class="dialog-panel" role="dialog" aria-modal="true" aria-labelledby="passwordDialogTitle">
+    <h2 id="passwordDialogTitle">パスワード</h2>
+    <div class="dialog-body">
+      <div id="passwordDialogCurrentGroup" style="display: none;">
+        <label for="passwordDialogCurrent">現在のパスワード</label>
+        <input type="password" id="passwordDialogCurrent" style="width: 100%;">
+      </div>
+      <div style="margin-top: 0.75em;">
+        <label for="passwordDialogNew">パスワード</label>
+        <input type="password" id="passwordDialogNew" style="width: 100%;">
+      </div>
+      <div id="passwordDialogConfirmGroup" style="margin-top: 0.75em;">
+        <label for="passwordDialogConfirm">パスワード（確認用）</label>
+        <input type="password" id="passwordDialogConfirm" style="width: 100%;">
+      </div>
+      <div id="passwordDialogMessage" style="margin-top: 1em; color: #d32f2f;"></div>
+    </div>
+    <div class="dialog-actions">
+      <button id="passwordDialogCancelBtn" class="secondary-button" type="button">キャンセル</button>
+      <button id="passwordDialogOkBtn" class="secondary-button" type="button">OK</button>
     </div>
   </div>
 </div>

@@ -5,9 +5,10 @@ import { styleThemes } from './generated/style-themes';
 import { convertPageHtml } from './generated/convert-page-html';
 import { buildInfo } from './generated/build-info';
 import { helpContent } from './generated/help-content';
-import { preference } from './storage/preference';
+import { preference } from './storage/preferences';
 import { settings } from './storage/settings';
 import { defaultParams } from './storage/default-params';
+import { secrets } from './storage/secrets';
 
 type TransferMode = 'text' | 'binary-hex';
 type ToInputMode = 'copy' | 'swap';
@@ -75,6 +76,19 @@ export class ConvertPage {
   private buildDateDisplay!: HTMLElement;
   private gitBranchDisplay!: HTMLElement;
   private gitCommitDisplay!: HTMLElement;
+  private secretsRegisterBtn!: HTMLButtonElement;
+  private secretsAuthBtn!: HTMLButtonElement;
+  private secretsChangeBtn!: HTMLButtonElement;
+  private passwordDialogBackdrop!: HTMLDivElement;
+  private passwordDialogTitle!: HTMLElement;
+  private passwordDialogCurrentGroup!: HTMLDivElement;
+  private passwordDialogConfirmGroup!: HTMLDivElement;
+  private passwordDialogCurrent!: HTMLInputElement;
+  private passwordDialogNew!: HTMLInputElement;
+  private passwordDialogConfirm!: HTMLInputElement;
+  private passwordDialogMessage!: HTMLDivElement;
+  private passwordDialogCancelBtn!: HTMLButtonElement;
+  private passwordDialogOkBtn!: HTMLButtonElement;
 
   constructor() {
     this.engine = new ConvertEngine(CONVERTERS[0]);
@@ -249,6 +263,121 @@ export class ConvertPage {
   private closePreferenceDialog(): void {
     this.preferenceDialogBackdrop.classList.add('visually-hidden');
     this.preferenceDialogBackdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  private currentPasswordMode: 'register' | 'authenticate' | 'change' | null = null;
+  private cryptoRegisterRequested = false;
+
+  private openPasswordDialog(mode: 'register' | 'authenticate' | 'change'): void {
+    this.currentPasswordMode = mode;
+    this.passwordDialogMessage.textContent = '';
+    this.passwordDialogCurrent.value = '';
+    this.passwordDialogNew.value = '';
+    this.passwordDialogConfirm.value = '';
+
+    switch (mode) {
+      case 'register':
+        this.passwordDialogTitle.textContent = 'ロックキー登録';
+        this.passwordDialogCurrentGroup.style.display = 'none';
+        this.passwordDialogConfirmGroup.style.display = 'block';
+        break;
+      case 'change':
+        this.passwordDialogTitle.textContent = 'ロックキー変更';
+        this.passwordDialogCurrentGroup.style.display = 'block';
+        this.passwordDialogConfirmGroup.style.display = 'block';
+        break;
+      case 'authenticate':
+        this.passwordDialogTitle.textContent = 'ロック解除';
+        this.passwordDialogCurrentGroup.style.display = 'none';
+        this.passwordDialogConfirmGroup.style.display = 'none';
+        break;
+    }
+
+    this.passwordDialogBackdrop.classList.remove('visually-hidden');
+    this.passwordDialogBackdrop.setAttribute('aria-hidden', 'false');
+    this.passwordDialogNew.focus();
+  }
+
+  private closePasswordDialog(): void {
+    this.passwordDialogBackdrop.classList.add('visually-hidden');
+    this.passwordDialogBackdrop.setAttribute('aria-hidden', 'true');
+    this.currentPasswordMode = null;
+  }
+
+  private async handlePasswordDialogOk(): Promise<void> {
+    // console.info('handlePasswordDialogOk', { mode: this.currentPasswordMode });
+    const mode = this.currentPasswordMode;
+    if (!mode) return;
+
+    const password = this.passwordDialogNew.value;
+    const confirm = this.passwordDialogConfirm.value;
+
+    if (password.length < 4) {
+      this.passwordDialogMessage.textContent = 'ロックキーは4桁以上で入力してください。';
+      return;
+    }
+
+    if (mode !== 'authenticate' && password !== confirm) {
+      this.passwordDialogMessage.textContent = 'ロックキーが一致しません。';
+      return;
+    }
+
+    try {
+      switch (mode) {
+        case 'register': {
+          if (!secrets.unused) {
+            this.passwordDialogMessage.textContent = 'ロックキーは既に登録されています。';
+            return;
+          }
+          await secrets.setPassword(password);
+          await secrets.save();
+          this.closePasswordDialog();
+          alert('シークレットを登録しました。');
+          const registeredConverter = this.engine.getConverter();
+          this.renderConverterUI(registeredConverter);
+          this.engine.applyDefaultParamsToDescription();
+          registeredConverter.setupDescription?.(this.converterDescription);
+          break;
+        }
+        case 'authenticate': {
+          if (secrets.unused) {
+            this.passwordDialogMessage.textContent = 'ロックキーは未登録です。';
+            return;
+          }
+          const success = await secrets.setPassword(password);
+          if (success) {
+            this.closePasswordDialog();
+            alert('認証に成功しました。');
+            const currentConverter = this.engine.getConverter();
+            this.renderConverterUI(currentConverter);
+            this.engine.applyDefaultParamsToDescription();
+            currentConverter.setupDescription?.(this.converterDescription);
+          } else {
+            this.passwordDialogMessage.textContent = 'ロックキーに誤りがあります。';
+          }
+          break;
+        }
+        case 'change': {
+          if (secrets.unused) {
+            this.passwordDialogMessage.textContent = 'ロックキーは未登録です。';
+            return;
+          }
+          const currentPassword = this.passwordDialogCurrent.value;
+          const success = await secrets.changePassword(currentPassword, password);
+          if (success) {
+            this.closePasswordDialog();
+            await secrets.save();
+            alert('ロックキーを変更しました。');
+          } else {
+            this.passwordDialogMessage.textContent = '現在のロックキーに誤りがあります。';
+          }
+          break;
+        }
+      }
+    } catch (err) {
+      console.error('Error in handlePasswordDialogOk', err);
+      this.passwordDialogMessage.textContent = `エラー: ${err instanceof Error ? err.message : '不明なエラー'}`;
+    }
   }
 
   private displayBuildInfo(): void {
@@ -476,6 +605,11 @@ export class ConvertPage {
 
     const opts = this.engine.getOptions(this.converterDescription);
 
+    if ((opts.actionMode as string) === 'addKey' && !this.cryptoRegisterRequested) {
+      this.outputText.value = '鍵追加モードでは「鍵の登録」ボタンを押してください。';
+      return;
+    }
+
     try {
       const disableMultiline = this.engine.getConverter().disableMultiline === true;
       const lineByLine = !disableMultiline && this.lineByLineCheck.checked;
@@ -484,12 +618,29 @@ export class ConvertPage {
       if (lineByLine && !result.success) {
         this.errorMsg.textContent = '一部の行で変換に失敗しました';
       }
+
+      if (result.success && this.engine.getConverter().id === 'cryptoCipher' && (opts.actionMode as string) === 'addKey') {
+        const currentConverter = this.engine.getConverter();
+        this.renderConverterUI(currentConverter);
+        this.engine.applyDefaultParamsToDescription();
+        currentConverter.setupDescription?.(this.converterDescription);
+      }
     } catch (e) {
       if (e instanceof Error) {
+        if (e.message === 'SECRETS_REGISTER_REQUIRED') {
+          this.openPasswordDialog('register');
+          return;
+        }
+        if (e.message === 'SECRETS_AUTH_REQUIRED') {
+          this.openPasswordDialog('authenticate');
+          return;
+        }
         this.errorMsg.textContent = `エラー: ${e.message}`;
         return;
       }
       this.errorMsg.textContent = 'エラー: 不明なエラーが発生しました';
+    } finally {
+      this.cryptoRegisterRequested = false;
     }
   }
 
@@ -565,11 +716,25 @@ export class ConvertPage {
     this.buildDateDisplay = this.requireElement('buildDateDisplay');
     this.gitBranchDisplay = this.requireElement('gitBranchDisplay');
     this.gitCommitDisplay = this.requireElement('gitCommitDisplay');
+    this.secretsRegisterBtn = this.requireElement('secretsRegisterBtn');
+    this.secretsAuthBtn = this.requireElement('secretsAuthBtn');
+    this.secretsChangeBtn = this.requireElement('secretsChangeBtn');
+    this.passwordDialogBackdrop = this.requireElement('passwordDialogBackdrop');
+    this.passwordDialogTitle = this.requireElement('passwordDialogTitle');
+    this.passwordDialogCurrentGroup = this.requireElement('passwordDialogCurrentGroup');
+    this.passwordDialogConfirmGroup = this.requireElement('passwordDialogConfirmGroup');
+    this.passwordDialogCurrent = this.requireElement('passwordDialogCurrent');
+    this.passwordDialogNew = this.requireElement('passwordDialogNew');
+    this.passwordDialogConfirm = this.requireElement('passwordDialogConfirm');
+    this.passwordDialogMessage = this.requireElement('passwordDialogMessage');
+    this.passwordDialogCancelBtn = this.requireElement('passwordDialogCancelBtn');
+    this.passwordDialogOkBtn = this.requireElement('passwordDialogOkBtn');
 
     // Initialize storage and settings
     await settings.initialize();
     await preference.initialize();
     await defaultParams.initialize();
+    await secrets.initialize();
 
     // Apply saved pane layout
     this.applySavedPaneLayout();
@@ -596,6 +761,14 @@ export class ConvertPage {
     this.engine.setConverter(initialConverter);
     this.converterSelect.value = initialConverter.id;
     settings.lastConverterId = initialConverter.id;
+
+    this.converterDescription.addEventListener('crypto-request-unlock', () => {
+      this.openPasswordDialog('authenticate');
+    });
+    this.converterDescription.addEventListener('crypto-request-register', () => {
+      this.cryptoRegisterRequested = true;
+      void this.runConvert(true);
+    });
 
     // Render initial converter UI
     this.renderConverterUI(initialConverter);
@@ -816,6 +989,37 @@ export class ConvertPage {
     this.preferenceDialogBackdrop.addEventListener('click', (event) => {
       if (event.target === this.preferenceDialogBackdrop) {
         this.closePreferenceDialog();
+      }
+    });
+
+    // Secrets buttons
+    this.secretsRegisterBtn.addEventListener('click', () => {
+      this.closePreferenceDialog();
+      this.openPasswordDialog('register');
+    });
+
+    this.secretsAuthBtn.addEventListener('click', () => {
+      this.closePreferenceDialog();
+      this.openPasswordDialog('authenticate');
+    });
+
+    this.secretsChangeBtn.addEventListener('click', () => {
+      this.closePreferenceDialog();
+      this.openPasswordDialog('change');
+    });
+
+    // Password dialog
+    this.passwordDialogCancelBtn.addEventListener('click', () => {
+      this.closePasswordDialog();
+    });
+
+    this.passwordDialogOkBtn.addEventListener('click', () => {
+      void this.handlePasswordDialogOk();
+    });
+
+    this.passwordDialogBackdrop.addEventListener('click', (event) => {
+      if (event.target === this.passwordDialogBackdrop) {
+        this.closePasswordDialog();
       }
     });
 

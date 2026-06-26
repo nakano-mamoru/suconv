@@ -1,23 +1,26 @@
+import { SuconvDatabase } from './suconv-database';
+
 type PreferenceRecord = {
   key: string;
   value: unknown;
 };
 
-const DATABASE_NAME = 'suconv';
-const DATABASE_VERSION = 3;
-const SETTINGS_STORE_NAME = 'Settings';
-const PREFERENCES_STORE_NAME = 'Preferences';
-const DEFAULT_PARAMS_STORE_NAME = 'DefaultParams';
+// const DATABASE_NAME = 'suconv';
+// const DATABASE_VERSION = 3;
+// const SETTINGS_STORE_NAME = 'Settings';
+// const PREFERENCES_STORE_NAME = 'Preferences';
+// const DEFAULT_PARAMS_STORE_NAME = 'DefaultParams';
 const THEME_ID_KEY = 'themeId';
 const SPELL_CHECK_ENABLED_KEY = 'spellCheckEnabled';
 
-export class Preference {
+export class Preferences {
+  public static readonly storeName = 'Preferences';
   private dbPromise: Promise<IDBDatabase>;
   private cache = new Map<string, unknown>();
   private initialized = false;
 
   constructor() {
-    this.dbPromise = this.openDatabase();
+    this.dbPromise = SuconvDatabase.openDatabase();
   }
 
   get themeId(): string {
@@ -61,8 +64,8 @@ export class Preference {
   private async getValue<T>(key: string): Promise<T | undefined> {
     const db = await this.dbPromise;
     return await new Promise<T | undefined>((resolve, reject) => {
-      const transaction = db.transaction(PREFERENCES_STORE_NAME, 'readonly');
-      const store = transaction.objectStore(PREFERENCES_STORE_NAME);
+      const transaction = db.transaction(Preferences.storeName, 'readonly');
+      const store = transaction.objectStore(Preferences.storeName);
       const request = store.get(key);
 
       request.addEventListener('success', () => {
@@ -80,8 +83,8 @@ export class Preference {
   private async setValue<T>(key: string, value: T): Promise<void> {
     const db = await this.dbPromise;
     await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction(PREFERENCES_STORE_NAME, 'readwrite');
-      const store = transaction.objectStore(PREFERENCES_STORE_NAME);
+      const transaction = db.transaction(Preferences.storeName, 'readwrite');
+      const store = transaction.objectStore(Preferences.storeName);
       store.put({ key, value } satisfies PreferenceRecord);
 
       transaction.addEventListener('complete', () => resolve());
@@ -90,27 +93,27 @@ export class Preference {
     });
   }
 
-  private async openDatabase(): Promise<IDBDatabase> {
-    return await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
+  // private async openDatabase(): Promise<IDBDatabase> {
+  //   return await new Promise<IDBDatabase>((resolve, reject) => {
+  //     const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
 
-      request.addEventListener('upgradeneeded', () => {
-        const db = request.result;
-        if (!db.objectStoreNames.contains(SETTINGS_STORE_NAME)) {
-          db.createObjectStore(SETTINGS_STORE_NAME, { keyPath: 'key' });
-        }
-        if (!db.objectStoreNames.contains(PREFERENCES_STORE_NAME)) {
-          db.createObjectStore(PREFERENCES_STORE_NAME, { keyPath: 'key' });
-        }
-        if (!db.objectStoreNames.contains(DEFAULT_PARAMS_STORE_NAME)) {
-          db.createObjectStore(DEFAULT_PARAMS_STORE_NAME, { keyPath: 'key' });
-        }
-      });
+  //     request.addEventListener('upgradeneeded', () => {
+  //       const db = request.result;
+  //       if (!db.objectStoreNames.contains(SETTINGS_STORE_NAME)) {
+  //         db.createObjectStore(SETTINGS_STORE_NAME, { keyPath: 'key' });
+  //       }
+  //       if (!db.objectStoreNames.contains(PREFERENCES_STORE_NAME)) {
+  //         db.createObjectStore(PREFERENCES_STORE_NAME, { keyPath: 'key' });
+  //       }
+  //       if (!db.objectStoreNames.contains(DEFAULT_PARAMS_STORE_NAME)) {
+  //         db.createObjectStore(DEFAULT_PARAMS_STORE_NAME, { keyPath: 'key' });
+  //       }
+  //     });
 
-      request.addEventListener('success', () => resolve(request.result));
-      request.addEventListener('error', () => reject(request.error));
-    });
-  }
+  //     request.addEventListener('success', () => resolve(request.result));
+  //     request.addEventListener('error', () => reject(request.error));
+  //   });
+  // }
 }
 
-export const preference = new Preference();
+export const preference = new Preferences();

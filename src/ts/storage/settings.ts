@@ -1,13 +1,10 @@
+import { SuconvDatabase } from './suconv-database';
+
 type SettingRecord = {
   key: string;
   value: unknown;
 };
 
-const DATABASE_NAME = 'suconv';
-const DATABASE_VERSION = 3;
-const SETTINGS_STORE_NAME = 'Settings';
-const PREFERENCES_STORE_NAME = 'Preferences';
-const DEFAULT_PARAMS_STORE_NAME = 'DefaultParams';
 const INPUT_TEXT_KEY = 'inputText';
 const INPUT_PANE_RATIO_KEY = 'inputPaneRatio';
 const OUTPUT_PANE_RATIO_KEY = 'outputPaneRatio';
@@ -22,12 +19,13 @@ const OUTPUT_TRANSFER_MODE_KEY = 'outputTransferMode';
 const TO_INPUT_MODE_KEY = 'toInputMode';
 
 export class Settings {
+  public static readonly storeName = 'Settings';
   private dbPromise: Promise<IDBDatabase>;
   private cache = new Map<string, unknown>();
   private initialized = false;
 
   constructor() {
-    this.dbPromise = this.openDatabase();
+    this.dbPromise = SuconvDatabase.openDatabase();
   }
 
   get inputText(): string {
@@ -231,8 +229,8 @@ export class Settings {
   async getValue<T>(key: string): Promise<T | undefined> {
     const db = await this.dbPromise;
     return await new Promise<T | undefined>((resolve, reject) => {
-      const transaction = db.transaction(SETTINGS_STORE_NAME, 'readonly');
-      const store = transaction.objectStore(SETTINGS_STORE_NAME);
+      const transaction = db.transaction(Settings.storeName, 'readonly');
+      const store = transaction.objectStore(Settings.storeName);
       const request = store.get(key);
 
       request.addEventListener('success', () => {
@@ -252,8 +250,8 @@ export class Settings {
     this.cache.set(key, value);
 
     await new Promise<void>((resolve, reject) => {
-      const transaction = db.transaction(SETTINGS_STORE_NAME, 'readwrite');
-      const store = transaction.objectStore(SETTINGS_STORE_NAME);
+      const transaction = db.transaction(Settings.storeName, 'readwrite');
+      const store = transaction.objectStore(Settings.storeName);
       store.put({ key, value } satisfies SettingRecord);
 
       transaction.addEventListener('complete', () => resolve());
@@ -262,27 +260,27 @@ export class Settings {
     });
   }
 
-  private async openDatabase(): Promise<IDBDatabase> {
-    return await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
+  // private async openDatabase(): Promise<IDBDatabase> {
+  //   return await new Promise<IDBDatabase>((resolve, reject) => {
+  //     const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
 
-      request.addEventListener('upgradeneeded', () => {
-        const db = request.result;
-        if (!db.objectStoreNames.contains(SETTINGS_STORE_NAME)) {
-          db.createObjectStore(SETTINGS_STORE_NAME, { keyPath: 'key' });
-        }
-        if (!db.objectStoreNames.contains(PREFERENCES_STORE_NAME)) {
-          db.createObjectStore(PREFERENCES_STORE_NAME, { keyPath: 'key' });
-        }
-        if (!db.objectStoreNames.contains(DEFAULT_PARAMS_STORE_NAME)) {
-          db.createObjectStore(DEFAULT_PARAMS_STORE_NAME, { keyPath: 'key' });
-        }
-      });
+  //     request.addEventListener('upgradeneeded', () => {
+  //       const db = request.result;
+  //       if (!db.objectStoreNames.contains(SETTINGS_STORE_NAME)) {
+  //         db.createObjectStore(SETTINGS_STORE_NAME, { keyPath: 'key' });
+  //       }
+  //       if (!db.objectStoreNames.contains(PREFERENCES_STORE_NAME)) {
+  //         db.createObjectStore(PREFERENCES_STORE_NAME, { keyPath: 'key' });
+  //       }
+  //       if (!db.objectStoreNames.contains(DEFAULT_PARAMS_STORE_NAME)) {
+  //         db.createObjectStore(DEFAULT_PARAMS_STORE_NAME, { keyPath: 'key' });
+  //       }
+  //     });
 
-      request.addEventListener('success', () => resolve(request.result));
-      request.addEventListener('error', () => reject(request.error));
-    });
-  }
+  //     request.addEventListener('success', () => resolve(request.result));
+  //     request.addEventListener('error', () => reject(request.error));
+  //   });
+  // }
 }
 
 function isPaneRatio(value: unknown): value is number {

@@ -1,16 +1,16 @@
 # suconv
 
-文字列変換ツール。
+いろいろ文字列変換ツール。
 
 ## 開発セットアップ
 
-1. 依存関係をインストール
+### 1. 依存関係をインストール
 
 ```bash
 npm install
 ```
 
-2. TypeScript を esbuild でバンドル
+### 2. TypeScript を esbuild でバンドル
 
 ```bash
 npm run build
@@ -20,13 +20,25 @@ npm run build
 `src/scss` を `target/app.css` にコンパイルし、
 `src/html/index.html` から `target/index.html` を生成します。
 
-3. 型チェック
+※`npm : このシステムではスクリプトの実行が無効になっているため`のエラーになった場合、以下のコマンドで権限が付与できます。
+
+```cmd
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+### 3. 型チェック
+
+```operation
+Ctrl + Shift + P
+Tasks: Run Task
+TypeScript Type Check
+```
 
 ```bash
 npm run typecheck
 ```
 
-4. 変更監視しながらバンドル
+### 4. 変更監視しながらバンドル
 
 ```bash
 npm run watch

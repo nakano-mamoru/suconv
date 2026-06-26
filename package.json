@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node build/build.mjs",
     "watch": "node build/build.mjs --watch",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --watch",
     "doc:api": "typedoc --options typedoc.json",
     "test": "vitest run",
     "test:watch": "vitest",

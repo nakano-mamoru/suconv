@@ -105,7 +105,7 @@ function convertWidth(
   return result;
 }
 
-export const widthConvertConverter: Converter = {
+export const widthConverter: Converter = {
   id: 'width-convert',
   name: '全角/半角変換',
   description: () => `

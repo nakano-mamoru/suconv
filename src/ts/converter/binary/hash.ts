@@ -104,7 +104,7 @@ export const hashConverter: Converter = {
     setupAbortControllers.get(container)?.abort();
     const ctrl = new AbortController();
     setupAbortControllers.set(container, ctrl);
-    console.info('setupDescription');
+    // console.info('setupDescription');
   },
   swapMode(container: HTMLElement): void {
     const inputSel = container.querySelector<HTMLSelectElement>('#opt-inputMode');

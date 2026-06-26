@@ -66,7 +66,7 @@ export const binaryConverter: Converter = {
     };
 
     outputModeSelect.addEventListener('change', update, { signal: ctrl.signal });
-      console.info( "setupDescription")
+      // console.info( "setupDescription")
     update();
   },
   swapMode(container: HTMLElement): void {
