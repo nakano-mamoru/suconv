@@ -10,6 +10,7 @@ import { format as formatSql } from 'sql-formatter';
 import * as TOML from '@ltd/j-toml';
 
 type PrettierInputFormat = 'html' | 'xml' | 'json' | 'javascript' | 'sql' | 'yaml' | 'toml';
+type TomlInput = Parameters<typeof TOML.stringify>[0];
 
 const PRETTIER_PLUGINS = [babelPlugin, estreePlugin, htmlPlugin, yamlPlugin, xmlPlugin];
 
@@ -63,10 +64,10 @@ export const prettierFormatConverter: Converter = {
 
     if (inputFormat === 'toml') {
       const parsed = TOML.parse(text, { joiner: '\n', bigint: false });
-      return ConverterResult.success(TOML.stringify(parsed, {
+      return ConverterResult.success(TOML.stringify(parsed as TomlInput, {
         newline: '\n',
         indent: '  ',
-        forceInlineArraySpacing: false,
+        // forceInlineArraySpacing: false,
         newlineAround: 'section',
         xNull: false,
       }));

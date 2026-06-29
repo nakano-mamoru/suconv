@@ -69,11 +69,11 @@ async function computeHash(data: Uint8Array, algo: HashAlgo): Promise<string> {
     }
     case 'crc32': {
       const result = await hash.crc32(data);
-      return result.toString(16).padStart(8, '0');
+      return result;
     }
     case 'adler32': {
       const result = await hash.adler32(data);
-      return result.toString(16).padStart(8, '0');
+      return result;
     }
     default:
       throw new Error('不明なアルゴリズムです。');

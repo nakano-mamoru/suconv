@@ -7,6 +7,8 @@ import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 type DataFormat = 'json' | 'javascript' | 'yaml' | 'toml' | 'xml';
 type IndentMode = 'none' | '2' | '4' | 'tab';
 
+type TomlInput = Parameters<typeof TOML.Section>[0];
+
 const INDENT_MAP: Record<IndentMode, string | undefined> = {
   none: undefined,
   '2': '  ',
@@ -125,7 +127,7 @@ function buildTomlValue(value: unknown): unknown {
     for (const key of Object.keys(value as object)) {
       result[key] = buildTomlValue((value as Record<string, unknown>)[key]);
     }
-    return TOML.Section(result);
+    return TOML.Section(result as TomlInput);
   }
   return value;
 }
@@ -293,15 +295,15 @@ export const structuredDataConverter: Converter = {
     if (!outputFormatSelect || !indentSelect) return;
 
     const optNone = indentSelect.querySelector<HTMLOptionElement>('option[value="none"]');
-    const optTab  = indentSelect.querySelector<HTMLOptionElement>('option[value="tab"]');
-    const grpIndent  = container.querySelector<HTMLElement>('#grp-indent');
+    const optTab = indentSelect.querySelector<HTMLOptionElement>('option[value="tab"]');
+    const grpIndent = container.querySelector<HTMLElement>('#grp-indent');
     const grpXmlAttr = container.querySelector<HTMLElement>('#grp-xml-attr');
 
     const update = (): void => {
       const fmt = outputFormatSelect.value as DataFormat;
 
       if (fmt === 'toml') {
-        if (grpIndent)  grpIndent.hidden  = true;
+        if (grpIndent) grpIndent.hidden = true;
         if (grpXmlAttr) grpXmlAttr.hidden = true;
         return;
       }
@@ -311,13 +313,13 @@ export const structuredDataConverter: Converter = {
 
       if (fmt === 'yaml') {
         if (optNone) optNone.hidden = true;
-        if (optTab)  optTab.hidden  = true;
+        if (optTab) optTab.hidden = true;
         if (indentSelect.value === 'none' || indentSelect.value === 'tab') {
           indentSelect.value = '2';
         }
       } else {
         if (optNone) optNone.hidden = false;
-        if (optTab)  optTab.hidden  = false;
+        if (optTab) optTab.hidden = false;
       }
     };
 

@@ -66,7 +66,7 @@ export const binaryConverter: Converter = {
     };
 
     outputModeSelect.addEventListener('change', update, { signal: ctrl.signal });
-      // console.info( "setupDescription")
+    // console.info( "setupDescription")
     update();
   },
   swapMode(container: HTMLElement): void {
@@ -76,8 +76,8 @@ export const binaryConverter: Converter = {
     [inputSel.value, outputSel.value] = [outputSel.value, inputSel.value];
   },
   async convert(text, opts) {
-    const inputMode = (opts.inputMode as string) ?? 'utf8-text';
-    const outputMode = (opts.outputMode as string) ?? 'base64-string';
+    const inputMode = (opts.inputMode as string);
+    const outputMode = (opts.outputMode as string);
     const inputBytes = decodeInput(text, inputMode);
     return ConverterResult.success(encodeOutput(inputBytes, outputMode, {
       hexFormat: opts.hexFormat as string,

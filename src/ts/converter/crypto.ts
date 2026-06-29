@@ -60,6 +60,16 @@ function base64ToUint8Array(base64: string): Uint8Array {
   return bytes;
 }
 
+//crypto関連の引数がUint8Array<ArrayBufferLike>を許容しない為、本関数でキャストする。
+function asArrayBuffer(bytes: Uint8Array<ArrayBufferLike>): Uint8Array<ArrayBuffer> {
+  if (bytes.buffer instanceof ArrayBuffer) {
+    return bytes as Uint8Array<ArrayBuffer>;
+  }
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return copy;
+}
+
 function encodeText(text: string): Uint8Array {
   return new TextEncoder().encode(text);
 }
@@ -88,7 +98,7 @@ function getCipherSettings(algorithm: AlgorithmMode): { name: string; ivLength: 
 }
 
 async function deriveKey(algorithm: AlgorithmMode, secretValue: string): Promise<CryptoKey> {
-  const secretHash = await crypto.subtle.digest('SHA-256', encodeText(secretValue));
+  const secretHash = await crypto.subtle.digest('SHA-256', asArrayBuffer(encodeText(secretValue)));
   const hashBytes = new Uint8Array(secretHash);
   const settings = getCipherSettings(algorithm);
   const rawKey = hashBytes.slice(0, settings.keyLength);
@@ -103,7 +113,7 @@ async function deriveKey(algorithm: AlgorithmMode, secretValue: string): Promise
 }
 
 async function deriveHmacKey(secretValue: string): Promise<CryptoKey> {
-  const rawKey = await crypto.subtle.digest('SHA-256', encodeText(secretValue));
+  const rawKey = await crypto.subtle.digest('SHA-256', asArrayBuffer(encodeText(secretValue)));
   return await crypto.subtle.importKey(
     'raw',
     rawKey,
@@ -390,7 +400,7 @@ export const cryptoConverter: Converter = {
             return ConverterResult.failure(err instanceof Error ? err.message : '鍵の解析に失敗しました。');
           }
         } else {
-          const hash = await crypto.subtle.digest('SHA-256', encodeText(keyData));
+          const hash = await crypto.subtle.digest('SHA-256', asArrayBuffer(encodeText(keyData)));
           storedKeyValue = uint8ArrayToHex(new Uint8Array(hash));
         }
       }
@@ -436,7 +446,7 @@ export const cryptoConverter: Converter = {
 
     if (action === 'encrypt') {
       const algorithmParams = { name: cipherInfo.name, iv } as AesCbcParams | AesGcmParams | any;
-      const encrypted = await crypto.subtle.encrypt(algorithmParams, key, data);
+      const encrypted = await crypto.subtle.encrypt(algorithmParams, key, asArrayBuffer(data));
       const outputBytes = new Uint8Array(encrypted);
       return ConverterResult.success(getPreferredOutput(outputBytes, outputMode));
     }
@@ -450,7 +460,7 @@ export const cryptoConverter: Converter = {
       }
       try {
         const algorithmParams = { name: cipherInfo.name, iv } as AesCbcParams | AesGcmParams | any;
-        const decrypted = await crypto.subtle.decrypt(algorithmParams, key, encryptedBytes);
+        const decrypted = await crypto.subtle.decrypt(algorithmParams, key, asArrayBuffer(encryptedBytes));
         const decryptedBytes = new Uint8Array(decrypted);
         if (outputMode === 'binary-hex') {
           return ConverterResult.success(uint8ArrayToHex(decryptedBytes));
