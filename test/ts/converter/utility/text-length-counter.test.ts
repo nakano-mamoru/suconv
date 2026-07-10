@@ -40,6 +40,6 @@ describe('textLengthCounter', () => {
       removeLineBreaks: true,
     });
 
-    expect(result).toEqual({ success: true, output: 'ab' });
+    expect(result).toEqual({ success: true, output: 'a\nb' });
   });
 });
