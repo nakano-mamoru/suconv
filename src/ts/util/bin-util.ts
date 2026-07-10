@@ -22,15 +22,16 @@ export type EncodeOpts = {
   csvLineBreak?: string;
 };
 
-export function getSelectHtml(id: string): string {
-  const defaultMode: BinFormatMode = id.includes('outputMode') ? 'base64-string' : 'utf8-text';
-  const optionsHtml = BIN_FORMAT_OPTIONS.map((item) => {
-    const selected = item.value === defaultMode ? ' selected' : '';
-    return `<option value="${item.value}"${selected}>${item.label}</option>`;
-  }).join('');
+export function getSelectHtml(id: string, without?: string[]): string {
+  const optionsHtml = BIN_FORMAT_OPTIONS
+    .filter((item) => !without?.includes(item.value))
+    .map((item) => {
+      const selected = item.value === 'hex-string' ? ' selected' : '';
+      return `<option value="${item.value}"${selected}>${item.label}</option>`;
+    })
+    .join('');
   return `<select id="${id}">${optionsHtml}</select>`;
 }
-
 function normalizeHex(text: string): string {
   return text.replace(/[\s-]/g, '');
 }

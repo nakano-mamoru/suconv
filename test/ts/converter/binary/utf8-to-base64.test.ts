@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { binaryConverter } from '../../../../src/ts/converter/binary/utf8-to-base64';
+import { binaryConverter } from '../../../../src/ts/converter/binary/binary-converter';
 import type { ConverterParams } from '../../../../src/ts/converter/converter-params';
 import type { BinFormatMode } from '../../../../src/ts/util/bin-util';
 

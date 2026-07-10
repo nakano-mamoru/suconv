@@ -924,6 +924,7 @@ export class ConvertPage {
     // To input button
     this.toInputBtn.addEventListener('click', () => {
       const newInputText = this.outputText.value;
+      // console.info('toInputBtn click', this.toInputMode)
       if (this.toInputMode === 'swap') {
         const conv = this.engine.getConverter();
         conv.swapMode?.(this.converterDescription);

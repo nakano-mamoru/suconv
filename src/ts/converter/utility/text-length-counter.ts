@@ -1,12 +1,12 @@
 import type { Converter } from '../converter';
 import { ConverterResult } from '../converter-result';
 import {
-  COUNT_MODE_MAP,
+  CountMode,
   countTextByMode,
-  preprocessByCommonOptions,
+  normalizeText,
 } from '../../util/str-util';
 
-export const countLengthConverter: Converter = {
+export const textLengthCounter: Converter = {
   id: 'count-length',
   name: '文字数/バイト数をカウント',
   description: () => `
@@ -21,10 +21,18 @@ export const countLengthConverter: Converter = {
         </select>
       </div>
       <div>
-        <label><input id="opt-stripTags" type="checkbox"> タグ除去（HTMLタグを除去します）</label>
+        <label>
+          <input id="opt-stripTags" type="checkbox"> タグ除去（HTMLタグを除去します）
+        </label>
+        <label>
+          <input id="opt-removeScriptBlock" type="checkbox"> スクリプト除去（SCRIPTタグ内を除去します）
+        </label>
       </div>
       <div>
-        <label><input id="opt-trimWhitespace" type="checkbox" checked> 空白除去（行頭・行末の連続した空白文字、タブ文字を除去します）</label>
+        <label><input id="opt-trimWhitespace" type="checkbox" checked> 空白文字除去（行頭・行末の連続した空白文字、タブ文字を除去します）</label>
+      </div>
+      <div>
+        <label><input id="opt-removeEmptyLine" type="checkbox" checked> 空行除去（空の行を削除します。「行単位」が優先されます）</label>
       </div>
       <div>
         <label><input id="opt-removeLineBreaks" type="checkbox" checked> 改行除去（すべての改行文字を削除します。「行単位」が優先されます）</label>
@@ -39,13 +47,13 @@ export const countLengthConverter: Converter = {
     </div>
   `,
   async preProcess(text, opts) {
-    const { trimWhitespace, removeLineBreaks, stripTags } = opts;
-    return ConverterResult.success(preprocessByCommonOptions(text, trimWhitespace === true, removeLineBreaks === true, stripTags === true));
+    const { trimWhitespace, removeLineBreaks, stripTags, removeScriptBlock, removeEmptyLine } = opts;
+    return ConverterResult.success(normalizeText(text,
+      trimWhitespace === true, removeEmptyLine === true, removeLineBreaks === true, stripTags === true, removeScriptBlock === true));
   },
   async convert(text, opts) {
     const { splitMode, lineBreakChar } = opts;
-    const splitModeKey = (splitMode ?? 'chars') as keyof typeof COUNT_MODE_MAP;
-    const count = countTextByMode(text, COUNT_MODE_MAP[splitModeKey], String(lineBreakChar ?? 'lf'));
+    const count = countTextByMode(text, splitMode as CountMode, String(lineBreakChar ?? 'lf'));
     return ConverterResult.success(String(count));
   },
 };

@@ -1,7 +1,7 @@
 import type { Converter } from '../converter';
 import { ConverterResult } from '../converter-result';
 
-type EscapeType = 'html' | 'xml' | 'url' | 'literal';
+type EscapeType = 'html' | 'xml' | 'url' | 'literal' | 'rfc3986';
 type EscapeMode = 'escape' | 'unescape';
 
 const ENTITY_ESCAPE_MAP: Record<string, string> = {
@@ -143,6 +143,7 @@ export const escapeStringConverter: Converter = {
           <option value="html">HTML</option>
           <option value="xml">XML</option>
           <option value="url" selected>URLEncode</option>
+          <option value="rfc3986" selected>URLEncode(RFC3986)</option>
           <option value="literal">JSON/Java/C#リテラル文字列</option>
         </select>
       </div>
@@ -156,6 +157,7 @@ export const escapeStringConverter: Converter = {
   `,
   swapMode(container: HTMLElement): void {
     const sel = container.querySelector<HTMLSelectElement>('#opt-escapeMode');
+    // console.info(`swapMode:{sel}`)
     if (!sel) return;
     sel.value = sel.value === 'escape' ? 'unescape' : 'escape';
   },
@@ -173,6 +175,8 @@ export const escapeStringConverter: Converter = {
           return ConverterResult.success(unescapeMarkup(text));
         case 'url':
           return ConverterResult.success(decodeURIComponent(text));
+        case 'rfc3986':
+          return ConverterResult.success(decodeURIComponent(text));
         default:
           return ConverterResult.success(useEntityReference === true ? unescapeUxLiteral(unwrapStringLiteral(text)) : unescapeLiteral(text));
       }
@@ -185,6 +189,11 @@ export const escapeStringConverter: Converter = {
         return ConverterResult.success(escapeMarkup(text, useEntityReference === true, replaceSpaceToNbsp === true));
       case 'url':
         return ConverterResult.success(encodeURIComponent(text));
+      case 'rfc3986':
+        return ConverterResult.success(encodeURIComponent(text).replace(
+          /[!'()*]/g,
+          c => "%" + c.charCodeAt(0).toString(16).toUpperCase()
+        ));
       default:
         return ConverterResult.success(useEntityReference === true
           ? escapeAsUxLiteral(text)

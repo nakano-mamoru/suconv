@@ -60,8 +60,8 @@ function generatePassword(length: number, pools: string[]): string {
   return Array.from({ length }, () => combined[randomInt(combined.length)]).join('');
 }
 
-export const generateStringConverter: Converter = {
-  id: 'generate-string',
+export const randomTextGenerator: Converter = {
+  id: 'random-text-generator',
   name: '文字列生成',
   disableMultiline: true,
   description: () => `

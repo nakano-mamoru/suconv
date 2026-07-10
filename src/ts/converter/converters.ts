@@ -1,30 +1,30 @@
 import type { Converter } from './converter';
-import { binaryConverter } from './binary/utf8-to-base64';
-import { hashConverter } from './binary/hash';
-import { lineBreakByLengthConverter } from './format/line-break-by-length';
+import { binaryConverter } from './binary/binary-converter';
+import { hashCalculator } from './binary/hash-calculator';
+import { lineBreakConverter } from './format/line-break-converter';
 import { escapeStringConverter } from './format/escape-string';
 import { prettierFormatConverter } from './format/prettier-format';
 import { structuredDataConverter } from './format/structured-data';
 import { arrayTableConverter } from './format/array-table';
-import { countLengthConverter } from './utility/count-length';
-import { generateStringConverter } from './utility/generate-string';
+import { textLengthCounter } from './utility/text-length-counter';
+import { randomTextGenerator } from './utility/random-text-generator';
 import { datetimeConverter } from './utility/datetime';
-import { widthConverter } from './utility/width-convert';
+import { charWidthConverter } from './utility/char-width-converter';
 import { variableNameConverter } from './utility/variable-name';
 import { cryptoConverter } from './crypto';
 
 export const CONVERTERS: Converter[] = [
 	binaryConverter,
-	hashConverter,
-	lineBreakByLengthConverter,
+	hashCalculator,
+	lineBreakConverter,
 	escapeStringConverter,
 	prettierFormatConverter,
 	structuredDataConverter,
 	arrayTableConverter,
-	countLengthConverter,
-	generateStringConverter,
+	textLengthCounter,
+	randomTextGenerator,
 	datetimeConverter,
-	widthConverter,
+	charWidthConverter,
 	variableNameConverter,
 	cryptoConverter,
 ];

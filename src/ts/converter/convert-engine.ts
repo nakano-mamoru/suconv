@@ -120,22 +120,27 @@ export class ConvertEngine {
     input: string,
     opts: ConverterParams,
   ): Promise<ConverterResult> {
+    console.info(`tun single. ${this.converter.id}.`, opts)
     const fail = (detail: unknown): ConverterResult => {
       console.error(detail);
       return ConverterResult.failure(ConvertEngine.USER_ERROR_MESSAGE);
     };
 
+    // console.info(`preProcess start`)
     const pre = this.converter.preProcess
       ? await this.converter.preProcess(input, opts)
       : { success: true as const, output: input };
     if (!pre.success) {
+      // console.info(`preProcess error`, pre)
       return fail(pre.output);
     }
 
     let converted: ConverterResult;
     try {
+      // console.info(`convert start`)
       converted = await this.converter.convert(pre.output, opts);
     } catch (error) {
+      // console.info(`convert error`, error)
       return fail(error);
     }
     if (!converted.success) {

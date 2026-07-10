@@ -1,10 +1,10 @@
 import type { Converter } from '../converter';
 import { ConverterResult } from '../converter-result';
 import {
-  COUNT_MODE_MAP,
   type CountMode,
-  measureCharByCountMode,
-  preprocessByCommonOptions,
+  splitText,
+  normalizeText,
+  normalizeWordSpacing,
 } from '../../util/str-util';
 
 const LINE_BREAK_CHAR_MAP: Record<string, string> = {
@@ -15,73 +15,42 @@ const LINE_BREAK_CHAR_MAP: Record<string, string> = {
   'br': '<br>',
 };
 
-const KINSOKU_HEAD = new Set('、。，．・：；？！）〕］｝〉》」』】ーっッゃャゅュょョぁぁぃィぅゥぇェぉォ…‥');
-const KINSOKU_TAIL = new Set('（〔［｛〈《「『【');
-
-function splitTextByMode(
-  text: string,
-  limit: number,
-  countMode: CountMode,
-  useKinsoku: boolean,
-  keepLineBreakBoundary: boolean,
-): string[] {
-  const chars = Array.from(text);
-  const segments: string[] = [];
-  let currentSegment = '';
-  let currentLength = 0;
-  let skipNextLf = false;
-
-  chars.forEach((char, index) => {
-    if (keepLineBreakBoundary) {
-      if (skipNextLf && char === '\n') {
-        skipNextLf = false;
-        return;
-      }
-      skipNextLf = false;
-
-      if (char === '\n' || char === '\r') {
-        segments.push(currentSegment);
-        currentSegment = '';
-        currentLength = 0;
-        if (char === '\r') {
-          skipNextLf = true;
-        }
-        return;
-      }
-    }
-
-    const charLength = measureCharByCountMode(char, countMode);
-
-    currentSegment += char;
-    currentLength += charLength;
-
-    if (currentSegment.length > 0 && currentLength >= limit) {
-      const nextChar = chars[index + 1];
-      const shouldHoldByKinsoku = useKinsoku
-        && (KINSOKU_TAIL.has(char) || (nextChar !== undefined && KINSOKU_HEAD.has(nextChar)));
-      if (shouldHoldByKinsoku) {
-        return;
-      }
-
-      segments.push(currentSegment);
-      currentSegment = '';
-      currentLength = 0;
-    }
-  });
-
-  if (currentSegment.length > 0) {
-    segments.push(currentSegment);
-  }
-
-  return segments;
-}
-
-export const lineBreakByLengthConverter: Converter = {
-  id: 'line-break-by-length',
-  name: '文字列フォーマット',
+export const lineBreakConverter: Converter = {
+  id: 'line-break',
+  name: '文字列整形',
   description: () => `
-    <p>指定した文字数ごとに改行を入れます。</p>
+    <p>文章を抜粋して指定した文字数ごとに改行を入れます。</p>
     <div class="converter-options">
+      <div>
+        <label>
+          <input id="opt-stripTags" type="checkbox"> タグ除去（HTMLタグを除去します）
+        </label>
+        <label>
+          <input id="opt-removeScriptBlock" type="checkbox"> スクリプト除去（SCRIPTタグ内を除去します）
+        </label>
+        <label>
+          <input id="opt-br2cr" type="checkbox"> BRタグを改行に置換
+        </label>
+      </div>
+      <div>
+        <label><input id="opt-trimWhitespace" type="checkbox" checked> 空白文字除去（行頭・行末の連続した空白文字、タブ文字を除去します）</label>
+      </div>
+      <label>
+        <input id="opt-nbsp2sp" type="checkbox"> &nbsp;(0xA0)を半角スペース(0x20)に変換
+      </label>
+      <div>
+        <label><input id="opt-removeEmptyLine" type="checkbox" checked> 空行除去（空の行を削除します。「行単位」が優先されます）</label>
+      </div>
+      <div>
+        <label><input id="opt-collapseMultipleSpaces" type="checkbox" checked> 複数のスペースを1つにまとめます。</label>
+      </div>
+      <div>
+        <label><input id="opt-removeLineBreaks" type="checkbox" checked> 改行除去（すべての改行文字を削除します。「行単位」が優先されます）</label>
+      </div>
+      <div>
+        <label><input id="opt-toNarrow" type="checkbox" checked> 全角英数字を半角に変換</label>
+        <label><input id="opt-wordSpacing" type="checkbox" checked> 英単語の前後に空白挿入</label>
+      </div>
       <div>
         <label for="opt-charsPerLine">1行あたりの文字数</label>
         <div data-role="picker">
@@ -105,15 +74,6 @@ export const lineBreakByLengthConverter: Converter = {
         </select>
       </div>
       <div>
-        <label><input id="opt-stripTags" type="checkbox"> タグ除去（HTMLタグを除去します）</label>
-      </div>
-      <div>
-        <label><input id="opt-trimWhitespace" type="checkbox" checked> 空白除去（行頭・行末の連続した空白文字、タブ文字を除去します）</label>
-      </div>
-      <div>
-        <label><input id="opt-removeLineBreaks" type="checkbox" checked> 改行除去（すべての改行文字を削除します。「行単位」が優先されます）</label>
-      </div>
-      <div>
         <label><input id="opt-kinsoku" type="checkbox"> 禁則処理</label>
       </div>
       <div>
@@ -129,12 +89,30 @@ export const lineBreakByLengthConverter: Converter = {
     </div>
   `,
   async preProcess(text, opts) {
-    const { charsPerLine, trimWhitespace, removeLineBreaks, stripTags } = opts;
+    const { wordSpacing, charsPerLine, trimWhitespace, nbsp2sp, collapseMultipleSpaces, removeEmptyLine, removeLineBreaks, stripTags, removeScriptBlock, br2cr } = opts;
+    if (br2cr === true) {
+      text = text.replace(/<br[^>]*>/gim, '\n');
+    }
+
+
+
+    if (wordSpacing === true) {
+      text = normalizeWordSpacing(text);
+    }
     const parsedCharsPerLine = Number(String(charsPerLine).trim());
     if (!Number.isNaN(parsedCharsPerLine)) {
       opts.charsPerLine = String(parsedCharsPerLine);
     }
-    return ConverterResult.success(preprocessByCommonOptions(text, trimWhitespace === true, removeLineBreaks === true, stripTags === true));
+    return ConverterResult.success(normalizeText(
+      text,
+      trimWhitespace === true,
+      nbsp2sp === true,
+      removeEmptyLine === true,
+      collapseMultipleSpaces === true,
+      removeLineBreaks === true,
+      stripTags === true,
+      removeScriptBlock === true));
+
   },
   async convert(text, opts) {
     const {
@@ -143,18 +121,19 @@ export const lineBreakByLengthConverter: Converter = {
       splitMode,
       kinsoku,
       removeLineBreaks,
+      collapseMultipleSpaces,
     } = opts;
+    // console.info(`text:${text}`)
     const parsedCharsPerLine = Number(String(charsPerLine).trim());
     if (Number.isNaN(parsedCharsPerLine) || parsedCharsPerLine <= 0) {
       return ConverterResult.success(text.replace(/\r\n|\r|\n/g, ''));
     }
-
+    collapseMultipleSpaces
     const lineBreakCharKey = (lineBreakChar ?? 'lf') as keyof typeof LINE_BREAK_CHAR_MAP;
-    const splitModeKey = (splitMode ?? 'chars') as keyof typeof COUNT_MODE_MAP;
-    const segments = splitTextByMode(
+    const segments = splitText(
       text,
       parsedCharsPerLine,
-      COUNT_MODE_MAP[splitModeKey],
+      splitMode as CountMode,
       kinsoku === true,
       removeLineBreaks !== true,
     );
